@@ -1,19 +1,21 @@
+import React from 'react';
 import style from './Page.module.css';
-import frontWave from '../../images/wave1.svg';
-import backWave from '../../images/wave2.svg';
-import React from "react";
+import arrow from "../../images/arrow.svg";
 
 
-function Page() {
+const Page = props => {
 
+    let exitButton;
+    if (props.subpage === "login") {
+        exitButton = <div className={style.changeText}>Signup</div>
+    }
     return (
         <div className={style.app}>
-            <div className={style.content}>
+            <div className={style.changeInput}>
+                {exitButton}
+                <img className={style.arrow} src={arrow} alt="arrow"/>
             </div>
-            <div className={style.waves}>
-                <img className={style.backWave} src={backWave} alt="bottom-wave"/>
-                <img className={style.frontWave} src={frontWave} alt="bottom-wave"/>
-            </div>
+            {props.children}
         </div>
     );
 }

@@ -1,0 +1,9 @@
+.formBox {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    background: #1D2028;
+    border-radius: 10px;
+    padding: 2em;
+}
