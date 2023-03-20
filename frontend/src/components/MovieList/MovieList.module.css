@@ -1,0 +1,21 @@
+.movieBlock {
+    width: 90%;
+    margin-top: 3em;
+    margin-bottom: 3em;
+}
+
+.title {
+    color: white;
+    margin:0;
+    font-size: 2em;
+}
+
+.line {
+    width: 40%;
+}
+
+.movies {
+    margin-top: 2em;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}

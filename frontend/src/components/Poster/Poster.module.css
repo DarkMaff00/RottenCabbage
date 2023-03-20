@@ -1,0 +1,14 @@
+.posterBlock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.poster{
+    height: 10em;
+}
+
+.title {
+    color: white;
+    font-weight: bold;
+}
