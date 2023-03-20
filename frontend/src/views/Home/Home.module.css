@@ -1,0 +1,43 @@
+.home {
+    display: flex;
+    width: 80%;
+    margin-top: 4em;
+}
+
+.homeText {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+}
+
+.homeTitle {
+    font-style: normal;
+    font-weight: bold;
+    font-size: 3.2em;
+    line-height: 58px;
+
+    background: linear-gradient(90deg, #FFFFFF 0%, #B2D942 101.48%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.homeDescription {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 1.4em;
+    line-height: 29px;
+
+    color: #7C7F9D;
+}
+
+.homePicture {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.picture {
+    height: 20em;
+}

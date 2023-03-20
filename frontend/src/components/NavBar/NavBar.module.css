@@ -1,0 +1,57 @@
+.changeInput {
+    width: 90%;
+    margin-top: 4em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1em;
+    height: 2em;
+    margin-bottom: 3em;
+}
+
+.changeText {
+    color: #7C7F9D;
+    font-size: 1.2em;
+    margin-bottom: 0.2em;
+}
+
+.arrow {
+    height: 1.4em;
+}
+
+.exitButton, .logoDiv {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
+.logoImage {
+    height: 4em;
+}
+
+.logoText > p {
+    color: white;
+    font-size: 1.5em;
+    margin: 0 1.5em 0 0;
+}
+
+a {
+    text-decoration: none;
+}
+
+.tabs {
+    display: flex;
+    color: #7C7F9D;
+    align-items: center;
+    gap: 2em;
+    font-size: 1.2em;
+}
+
+.userDiv {
+    width: 20%;
+    gap: 1em;
+    display: flex;
+    align-items: center;
+    color: #7C7F9D;
+    font-size: 1.2em;
+}
