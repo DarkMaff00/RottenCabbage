@@ -10,8 +10,9 @@
     font-size: 2em;
 }
 
-.line {
+.titleLine {
     width: 40%;
+    margin: 0;
 }
 
 .movies {

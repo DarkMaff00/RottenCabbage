@@ -9,7 +9,7 @@ const MovieList = props => {
         <div className={style.movieBlock}>
             <div className={style.title}>
                 {props.title}
-                <hr className={style.line}/>
+                <hr className={style.titleLine}/>
             </div>
             <div className={style.movies}>
                 <Poster/>

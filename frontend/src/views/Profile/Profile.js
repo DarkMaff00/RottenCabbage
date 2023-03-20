@@ -22,7 +22,7 @@ function Profile() {
                     <p>Movies</p>
                     <p>Series</p>
                 </div>
-                <hr/>
+                <hr className={style.line}/>
                 <div className={style.counted}>
                     Rates: <div className={style.number}>21</div>
                     Want to See: <div className={style.number}>21</div>

@@ -10,6 +10,7 @@ import Ranking from "./views/Ranking/Ranking";
 import Following from "./views/Following/Following";
 import Premiers from "./views/Premiers/Premiers";
 import Profile from "./views/Profile/Profile";
+import MovieInfo from "./views/MovieInfo/MovieInfo";
 
 const router = createBrowserRouter([
     {
@@ -45,6 +46,11 @@ const router = createBrowserRouter([
     {
         path: '/profile',
         element: <Profile/>,
+        errorElement: <Home/>
+    },
+    {
+        path: '/movieInfo',
+        element: <MovieInfo/>,
         errorElement: <Home/>
     },
 ]);
