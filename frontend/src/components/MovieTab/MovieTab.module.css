@@ -48,4 +48,12 @@
     align-items: center;
     gap: 1em;
     margin-left: 4em;
+    color: #7C7F9D;
+}
+
+.date {
+    font-size: 2em;
+    font-weight: bold;
+    color: white;
+    width: 100%;
 }

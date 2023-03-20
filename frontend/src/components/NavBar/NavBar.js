@@ -48,6 +48,9 @@ const NavBar = props => {
         if (props.type === "following") {
             followColor = {color: 'white'}
         }
+        if (props.type === "premiers") {
+            premierColor = {color: 'white'}
+        }
     }
 
     return (
@@ -62,14 +65,16 @@ const NavBar = props => {
                         </div>
                     </div>
                 </Link>
-                <div style = {show} className={style.menuTabs}>
+                <div style={show} className={style.menuTabs}>
                     <Link to='/ranking'>
                         <p style={rankingColor}>Rankings</p>
                     </Link>
                     <Link to='/following'>
                         <p style={followColor}>Following</p>
                     </Link>
-                    <p style={premierColor}>Premiers</p>
+                    <Link to='/premiers'>
+                        <p style={premierColor}>Premiers</p>
+                    </Link>
                 </div>
             </div>
             {endButton}

@@ -8,6 +8,7 @@ import Signup from "./views/Signup/Signup";
 import Home from './views/Home/Home';
 import Ranking from "./views/Ranking/Ranking";
 import Following from "./views/Following/Following";
+import Premiers from "./views/Premiers/Premiers";
 
 const router = createBrowserRouter([
     {
@@ -33,6 +34,11 @@ const router = createBrowserRouter([
     {
         path: '/following',
         element: <Following/>,
+        errorElement: <Home/>
+    },
+    {
+        path: '/premiers',
+        element: <Premiers/>,
         errorElement: <Home/>
     },
 ]);
