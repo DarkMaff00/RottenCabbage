@@ -1,0 +1,21 @@
+.followingDiv {
+    width: 100%;
+    display: flex;
+    gap: 5em;
+}
+
+.followingInfo {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+}
+
+.searchUser {
+    width: 20%;
+    margin-top: 2em;
+}
+
+.title {
+    margin: 0;
+    color: #8AA3E3;
+}

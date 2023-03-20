@@ -4,7 +4,7 @@ import style from './FormBox.module.css';
 
 const FormBox = props => {
     return (
-        <div className={style.formBox} >
+        <div className={style.formBox} style={{width: props.width}} >
             {props.children}
         </div>
     );

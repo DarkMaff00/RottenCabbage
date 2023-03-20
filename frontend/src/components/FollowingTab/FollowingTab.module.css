@@ -1,0 +1,34 @@
+.followingTab {
+    width: 100%;
+    margin: 2em;
+}
+
+.userGrade {
+    display: flex;
+    flex-direction: column;
+    padding: 1em;
+}
+
+.user {
+    display: flex;
+    gap: 1em;
+}
+
+.grade {
+    display: flex;
+    color: #7C7F9D;
+    align-items: center;
+    gap: 1em;
+}
+
+.number {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    margin: 0;
+}
+
+.star {
+    height: 2em;
+}

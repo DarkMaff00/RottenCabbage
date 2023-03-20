@@ -7,6 +7,7 @@ import Login from './views/Login/Login';
 import Signup from "./views/Signup/Signup";
 import Home from './views/Home/Home';
 import Ranking from "./views/Ranking/Ranking";
+import Following from "./views/Following/Following";
 
 const router = createBrowserRouter([
     {
@@ -27,6 +28,11 @@ const router = createBrowserRouter([
     {
         path: '/ranking',
         element: <Ranking/>,
+        errorElement: <Home/>
+    },
+    {
+        path: '/following',
+        element: <Following/>,
         errorElement: <Home/>
     },
 ]);
