@@ -11,6 +11,9 @@ import Following from "./views/Following/Following";
 import Premiers from "./views/Premiers/Premiers";
 import Profile from "./views/Profile/Profile";
 import MovieInfo from "./views/MovieInfo/MovieInfo";
+import Settings from "./views/Settings/Settings";
+import ChangePassword from "./views/ChangePassword/ChangePassword";
+import DeleteAccount from "./views/DeleteAccount/DeleteAccount";
 
 const router = createBrowserRouter([
     {
@@ -51,6 +54,21 @@ const router = createBrowserRouter([
     {
         path: '/movieInfo',
         element: <MovieInfo/>,
+        errorElement: <Home/>
+    },
+    {
+        path: '/settings',
+        element: <Settings/>,
+        errorElement: <Home/>
+    },
+    {
+        path: '/changePassword',
+        element: <ChangePassword/>,
+        errorElement: <Home/>
+    },
+    {
+        path: '/deleteAccount',
+        element: <DeleteAccount/>,
         errorElement: <Home/>
     },
 ]);
