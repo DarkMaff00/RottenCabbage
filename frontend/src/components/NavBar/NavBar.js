@@ -8,9 +8,11 @@ import userArrow from '../../images/user-arrow.svg';
 
 const NavBar = props => {
 
-    const BLOCK = {display: 'block'};
     const NONE = {display: 'none'};
     let show;
+    let rankingColor;
+    let followColor;
+    let premierColor;
     let endButton;
     if (props.type === "login") {
         endButton = [
@@ -39,9 +41,10 @@ const NavBar = props => {
                 <p>Name Surname</p>
                 <img src={userArrow} alt="userArrow"/>
             </div>
-
         ]
-        show = BLOCK;
+        if (props.type === "ranking") {
+            rankingColor = {color: 'white'}
+        }
     }
 
     return (
@@ -56,9 +59,13 @@ const NavBar = props => {
                         </div>
                     </div>
                 </Link>
-                <p style={show}>Rankings</p>
-                <p style={show}>Following</p>
-                <p style={show}>Premiers</p>
+                <div style = {show} className={style.menuTabs}>
+                    <Link to='/ranking'>
+                        <p style={rankingColor}>Rankings</p>
+                    </Link>
+                    <p style={followColor}>Following</p>
+                    <p style={premierColor}>Premiers</p>
+                </div>
             </div>
             {endButton}
         </div>

@@ -9,6 +9,7 @@ const Input = props => {
             <input
                 className={style.styleInput}
                 type={props.type}
+                placeholder={props.placeholder}
                 required={props.required}
             />
         </div>

@@ -1,0 +1,33 @@
+.rankingDiv {
+    width: 90%;
+    padding-bottom: 2em;
+}
+
+.headerMain {
+    width: 30%;
+}
+
+.rankingType {
+    margin-top: 1em;
+    width: 50%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    color: #7C7F9D;
+}
+
+.line {
+    position: relative;
+    margin-left: 0;
+    width: 50%;
+}
+
+.rankingType > p {
+    margin: 0;
+}
+
+.movies {
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+}

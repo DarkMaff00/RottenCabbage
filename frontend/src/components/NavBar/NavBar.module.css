@@ -35,8 +35,9 @@
     margin: 0 1.5em 0 0;
 }
 
-a {
+a, p {
     text-decoration: none;
+    color: #7C7F9D;
 }
 
 .tabs {
@@ -54,4 +55,9 @@ a {
     align-items: center;
     color: #7C7F9D;
     font-size: 1.2em;
+}
+
+.menuTabs {
+    display: flex;
+    gap: 2em;
 }

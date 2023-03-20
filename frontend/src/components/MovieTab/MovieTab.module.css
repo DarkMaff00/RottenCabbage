@@ -1,0 +1,51 @@
+.movieTab {
+    width: 80%;
+    display: flex;
+    margin-top: 2em;
+    background: #22212D;
+    border-radius: 10px;
+    padding-right: 2em;
+}
+
+.number, .mark {
+    font-size: 3em;
+    font-weight: bold;
+    color: white;
+    width: 10%;
+    text-align: center;
+}
+
+.poster {
+    height: 10em;
+}
+
+.movieInfo {
+    width: 20%;
+    margin-left: 1em;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.movieTitle {
+    font-weight: bold;
+    color: white;
+}
+
+.movieGenre {
+    display: flex;
+    gap: 1em;
+    align-items: center;
+    color: #7C7F9D;
+}
+
+.genreInfo {
+    color: white;
+}
+
+.grade {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    margin-left: 4em;
+}
