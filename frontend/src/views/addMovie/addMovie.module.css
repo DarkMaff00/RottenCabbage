@@ -1,0 +1,16 @@
+.title {
+    color: #5eb5e0;
+}
+
+p {
+    margin:0
+}
+
+textarea {
+    color: black;
+    background: #778991;
+    box-shadow: inset 2px 4px 4px rgba(132, 114, 114, 0.25);
+    border-radius: 2px;
+    width: calc(100% - 8px);
+    height: 5em;
+}

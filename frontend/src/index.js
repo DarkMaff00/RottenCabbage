@@ -14,6 +14,7 @@ import MovieInfo from "./views/MovieInfo/MovieInfo";
 import Settings from "./views/Settings/Settings";
 import ChangePassword from "./views/ChangePassword/ChangePassword";
 import DeleteAccount from "./views/DeleteAccount/DeleteAccount";
+import AddMovie from "./views/addMovie/addMovie";
 
 const router = createBrowserRouter([
     {
@@ -69,6 +70,11 @@ const router = createBrowserRouter([
     {
         path: '/deleteAccount',
         element: <DeleteAccount/>,
+        errorElement: <Home/>
+    },
+    {
+        path: '/addMovie',
+        element: <AddMovie/>,
         errorElement: <Home/>
     },
 ]);
