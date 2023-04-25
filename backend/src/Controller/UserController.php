@@ -27,6 +27,8 @@ class UserController extends AbstractController
         return new JsonResponse($data);
     }
 
+
+    //Use Case: Filtrowanie Ile ocen sie ma wyswietlac- po jakims czasie najlepsze filmy
     #[Route('/following', methods: ['GET'])]
     public function getFollowingUsers(): JsonResponse
     {

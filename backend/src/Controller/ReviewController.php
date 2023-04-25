@@ -6,7 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-
+// Review znajomcyh i all
 class ReviewController extends AbstractController
 {
     #[Route('/movieInfo/{uuid}', methods: ['POST'])]

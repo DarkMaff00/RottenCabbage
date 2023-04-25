@@ -11,7 +11,7 @@ class AppController extends AbstractController
     #[Route('/')]
     public function homepage(): JsonResponse
     {
-
+        phpinfo();
         $data = [
             'route' => 'homepage'
         ];
