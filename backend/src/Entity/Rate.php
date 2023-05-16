@@ -18,11 +18,11 @@ class Rate
 
     #[ORM\ManyToOne(inversedBy: 'rates')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $user_id = null;
+    private ?User $user_name = null;
 
     #[ORM\ManyToOne(inversedBy: 'rates')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Movie $movie_id = null;
+    private ?Movie $movie = null;
 
     public function getId(): ?int
     {
@@ -41,26 +41,26 @@ class Rate
         return $this;
     }
 
-    public function getUserId(): ?User
+    public function getUserName(): ?User
     {
-        return $this->user_id;
+        return $this->user_name;
     }
 
-    public function setUserId(?User $user_id): self
+    public function setUserName(?User $user_name): self
     {
-        $this->user_id = $user_id;
+        $this->user_name = $user_name;
 
         return $this;
     }
 
-    public function getMovieId(): ?Movie
+    public function getMovie(): ?Movie
     {
-        return $this->movie_id;
+        return $this->movie;
     }
 
-    public function setMovieId(?Movie $movie_id): self
+    public function setMovie(?Movie $movie): self
     {
-        $this->movie_id = $movie_id;
+        $this->movie = $movie;
 
         return $this;
     }
