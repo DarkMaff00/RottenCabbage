@@ -15,25 +15,29 @@ class Movie
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?float $rate = null;
+    #[ORM\Column]
+    private ?int $rate = null;
 
     #[ORM\Column]
     private ?bool $is_movie = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column]
     private ?int $num_of_ratings = null;
 
-    #[ORM\OneToMany(mappedBy: 'movie_id', targetEntity: Review::class, orphanRemoval: true)]
-    private Collection $reviews;
-
-    #[ORM\OneToMany(mappedBy: 'movie_id', targetEntity: Rate::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'movie', targetEntity: Rate::class)]
     private Collection $rates;
+
+    #[ORM\OneToMany(mappedBy: 'movie', targetEntity: Favourite::class)]
+    private Collection $specials;
+
+    #[ORM\OneToMany(mappedBy: 'movie', targetEntity: Review::class)]
+    private Collection $reviews;
 
     public function __construct()
     {
-        $this->reviews = new ArrayCollection();
         $this->rates = new ArrayCollection();
+        $this->specials = new ArrayCollection();
+        $this->reviews = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -41,12 +45,12 @@ class Movie
         return $this->id;
     }
 
-    public function getRate(): ?float
+    public function getRate(): ?int
     {
         return $this->rate;
     }
 
-    public function setRate(?float $rate): self
+    public function setRate(int $rate): self
     {
         $this->rate = $rate;
 
@@ -70,39 +74,9 @@ class Movie
         return $this->num_of_ratings;
     }
 
-    public function setNumOfRatings(?int $num_of_ratings): self
+    public function setNumOfRatings(int $num_of_ratings): self
     {
         $this->num_of_ratings = $num_of_ratings;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Review>
-     */
-    public function getReviews(): Collection
-    {
-        return $this->reviews;
-    }
-
-    public function addReview(Review $review): self
-    {
-        if (!$this->reviews->contains($review)) {
-            $this->reviews->add($review);
-            $review->setMovieId($this);
-        }
-
-        return $this;
-    }
-
-    public function removeReview(Review $review): self
-    {
-        if ($this->reviews->removeElement($review)) {
-            // set the owning side to null (unless already changed)
-            if ($review->getMovieId() === $this) {
-                $review->setMovieId(null);
-            }
-        }
 
         return $this;
     }
@@ -119,7 +93,7 @@ class Movie
     {
         if (!$this->rates->contains($rate)) {
             $this->rates->add($rate);
-            $rate->setMovieId($this);
+            $rate->setMovie($this);
         }
 
         return $this;
@@ -129,8 +103,68 @@ class Movie
     {
         if ($this->rates->removeElement($rate)) {
             // set the owning side to null (unless already changed)
-            if ($rate->getMovieId() === $this) {
-                $rate->setMovieId(null);
+            if ($rate->getMovie() === $this) {
+                $rate->setMovie(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Favourite>
+     */
+    public function getSpecials(): Collection
+    {
+        return $this->specials;
+    }
+
+    public function addSpecial(Favourite $special): self
+    {
+        if (!$this->specials->contains($special)) {
+            $this->specials->add($special);
+            $special->setMovie($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSpecial(Favourite $special): self
+    {
+        if ($this->specials->removeElement($special)) {
+            // set the owning side to null (unless already changed)
+            if ($special->getMovie() === $this) {
+                $special->setMovie(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Review>
+     */
+    public function getReviews(): Collection
+    {
+        return $this->reviews;
+    }
+
+    public function addReview(Review $review): self
+    {
+        if (!$this->reviews->contains($review)) {
+            $this->reviews->add($review);
+            $review->setMovie($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReview(Review $review): self
+    {
+        if ($this->reviews->removeElement($review)) {
+            // set the owning side to null (unless already changed)
+            if ($review->getMovie() === $this) {
+                $review->setMovie(null);
             }
         }
 
