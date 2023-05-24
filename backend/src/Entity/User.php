@@ -3,19 +3,20 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-class User
+class User implements PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?UuidInterface $id = null;
+    private ?string $id;
 
     #[ORM\Column(length: 255)]
     private ?string $email = null;
@@ -30,7 +31,7 @@ class User
     private ?string $last_name = null;
 
     #[ORM\Column]
-    private ?bool $is_admin = null;
+    private ?bool $is_admin = false;
 
     #[ORM\ManyToMany(targetEntity: self::class)]
     private Collection $following;
@@ -49,6 +50,7 @@ class User
 
     public function __construct()
     {
+        $this->id = Uuid::uuid4()->toString();
         $this->following = new ArrayCollection();
         $this->like_review = new ArrayCollection();
         $this->rates = new ArrayCollection();
@@ -56,7 +58,7 @@ class User
         $this->reviews = new ArrayCollection();
     }
 
-    public function getId(): ?UuidInterface
+    public function getId(): ?string
     {
         return $this->id;
     }

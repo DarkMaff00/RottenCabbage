@@ -1,3 +1,7 @@
 .titleBox {
     color: #8AA3E3;
 }
+
+.errorText {
+    color:red;
+}
