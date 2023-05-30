@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,12 +15,12 @@ class UserController extends AbstractController
 {
 
     private UserRepository $userRepository;
-    private $passwordHasher;
+    private UserPasswordHasherInterface $passwordHashed;
 
-    public function __construct(UserRepository $userRepository, UserPasswordHasherInterface $passwordHasher)
+    public function __construct(UserRepository $userRepository, UserPasswordHasherInterface $passwordHashed)
     {
         $this->userRepository = $userRepository;
-        $this->passwordHasher = $passwordHasher;
+        $this->passwordHashed = $passwordHashed;
     }
 
     /**
@@ -43,7 +42,7 @@ class UserController extends AbstractController
         }
 
         $user = new User();
-        $hashedPassword = $this->passwordHasher->hashPassword($user, $password);
+        $hashedPassword = $this->passwordHashed->hashPassword($user, $password);
 
         $user->setEmail($email);
         $user->setPassword($hashedPassword);

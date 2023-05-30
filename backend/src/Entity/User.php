@@ -4,15 +4,15 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-class User implements PasswordAuthenticatedUserInterface
+class User implements PasswordAuthenticatedUserInterface, UserInterface
 {
     #[ORM\Id]
     #[ORM\Column]
@@ -259,5 +259,22 @@ class User implements PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    public function getRoles(): array
+    {
+        if ($this->isIsAdmin()) {
+            return ['ROLE_ADMIN'];
+        }
+
+        return ['ROLE_USER'];
+    }
+
+    public function eraseCredentials()
+    {}
+
+    public function getUserIdentifier(): string
+    {
+        return (string)$this->getEmail();
     }
 }

@@ -17,7 +17,7 @@ function Home() {
                     </p>
                 </div>
                 <div className={style.homePicture}>
-                    <img className={style.picture} src={camera} alt="homePage-picture" />
+                    <img className={style.picture} src={camera} alt="homePage" />
                 </div>
             </div>
         </Page>
