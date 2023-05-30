@@ -4,23 +4,29 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Exception;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 
 class UserController extends AbstractController
 {
 
     private UserRepository $userRepository;
     private UserPasswordHasherInterface $passwordHashed;
+    private JWTEncoderInterface $JWTEncoder;
 
-    public function __construct(UserRepository $userRepository, UserPasswordHasherInterface $passwordHashed)
+    public function __construct(UserRepository $userRepository, UserPasswordHasherInterface $passwordHashed, JWTEncoderInterface $JWTEncoder)
     {
         $this->userRepository = $userRepository;
         $this->passwordHashed = $passwordHashed;
+        $this->JWTEncoder = $JWTEncoder;
     }
 
     /**
@@ -102,13 +108,35 @@ class UserController extends AbstractController
         return new JsonResponse($data);
     }
 
+    /**
+     * @param Request $request
+     * @param $jwtEncoder
+     * @return JsonResponse
+     * @throws JWTDecodeFailureException
+     * @throws NonUniqueResultException
+     */
     #[Route('/deleteAccount', methods: ['DELETE'])]
-    public function deleteUser(): JsonResponse
+    public function deleteUser(Request $request): JsonResponse
     {
-        $data = [
-            'route' => 'deleteUser'
-        ];
-        return new JsonResponse($data);
+        $bearerToken = $request->headers->get('Authorization');
+        $token = str_replace('Bearer ', '', $bearerToken);
+
+
+        $decodeToken = $this->JWTEncoder->decode($token);
+        $userEmail = $decodeToken['username'];
+        $data = json_decode($request->getContent(), true);
+
+
+        $password = $data['password'];
+        $user = $this->userRepository->findOneByEmail($userEmail);
+
+        if (!$this->passwordHashed->isPasswordValid($user, $password)) {
+            return new JsonResponse(["message" => "Invalid password"], 400);
+        }
+
+        $this->userRepository->remove($user, true);
+
+        return new JsonResponse(["message" => "User deleted successfully"]);
     }
 
     #[Route('/changePassword', methods: ['PUT'])]
