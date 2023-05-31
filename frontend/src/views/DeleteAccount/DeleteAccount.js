@@ -14,7 +14,7 @@ function DeleteAccount() {
     const navigate = useNavigate();
     const passwordRef = useRef(null);
     const [error, setError] = useState('');
-    const [cookies] = useCookies(['jwt']);
+    const [cookies, setCookie, removeCookie] = useCookies(['jwt']);
 
 
     useEffect(() => {
@@ -38,7 +38,7 @@ function DeleteAccount() {
                     },
                 }
             );
-
+            removeCookie('jwt');
             navigate('/');
         } catch (error) {
             setError(error.response.data.message);

@@ -7,26 +7,25 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Exception;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
+use App\Security\AccessTokenHandler;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
+
 
 class UserController extends AbstractController
 {
 
     private UserRepository $userRepository;
     private UserPasswordHasherInterface $passwordHashed;
-    private JWTEncoderInterface $JWTEncoder;
 
-    public function __construct(UserRepository $userRepository, UserPasswordHasherInterface $passwordHashed, JWTEncoderInterface $JWTEncoder)
+    public function __construct(UserRepository $userRepository, UserPasswordHasherInterface $passwordHashed)
     {
         $this->userRepository = $userRepository;
         $this->passwordHashed = $passwordHashed;
-        $this->JWTEncoder = $JWTEncoder;
     }
 
     /**
@@ -110,25 +109,22 @@ class UserController extends AbstractController
 
     /**
      * @param Request $request
-     * @param $jwtEncoder
+     * @param AccessTokenHandler $accessTokenHandler
      * @return JsonResponse
      * @throws JWTDecodeFailureException
      * @throws NonUniqueResultException
      */
     #[Route('/deleteAccount', methods: ['DELETE'])]
-    public function deleteUser(Request $request): JsonResponse
+    public function deleteUser(Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
     {
-        $bearerToken = $request->headers->get('Authorization');
-        $token = str_replace('Bearer ', '', $bearerToken);
+        try {
+            $user = $accessTokenHandler->getUserBadgeFrom($request);
+        } catch (BadCredentialsException $e) {
+            return new JsonResponse(["message" => $e], 400);
+        }
 
-
-        $decodeToken = $this->JWTEncoder->decode($token);
-        $userEmail = $decodeToken['username'];
         $data = json_decode($request->getContent(), true);
-
-
         $password = $data['password'];
-        $user = $this->userRepository->findOneByEmail($userEmail);
 
         if (!$this->passwordHashed->isPasswordValid($user, $password)) {
             return new JsonResponse(["message" => "Invalid password"], 400);
