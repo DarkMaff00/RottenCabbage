@@ -6,6 +6,8 @@ import Page from '../../components/Page/Page';
 import FormBox from '../../components/FormBox/FormBox';
 import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
+import {API_BASE_URL} from "../../index";
+import {useCookies} from "react-cookie";
 
 function Signup() {
 
@@ -24,6 +26,13 @@ function Signup() {
 
     const [isFormValid, setIsFormValid] = useState(false);
     const [error, setError] = useState('');
+    const [cookie] = useCookies(['jwt']);
+
+    useEffect(() => {
+        if (cookie.jwt) {
+            navigate('/');
+        }
+    }, [cookie.jwt, navigate]);
 
 
     const updatePasswordValue = (value) => {
@@ -41,7 +50,7 @@ function Signup() {
         };
 
         try {
-            await axios.post('http://localhost:8000/signup', formData);
+            await axios.post(`${API_BASE_URL}signup`, formData);
             navigate('/login');
         } catch (error) {
             setError(error.response.data.message);

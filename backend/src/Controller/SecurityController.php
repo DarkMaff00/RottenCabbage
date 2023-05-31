@@ -43,7 +43,12 @@ class SecurityController extends AbstractController
             return new JsonResponse(['message' => 'Invalid credentials.'], 401);
         }
 
-        $token = $this->jwtManager->create($user);
+        $userData = [
+            "firstName" => $user->getFirstName(),
+            "lastName" => $user->getLastName(),
+        ];
+
+        $token = $this->jwtManager->create($user, $userData);
 
         return new JsonResponse(['token' => $token]);
     }

@@ -4,7 +4,7 @@ import React from "react";
 
 const Button = props => {
     return (
-        <button className={style.button} style={{width: props.width}} disabled={props.disabled}>
+        <button className={style.button} style={{width: props.width}} disabled={props.disabled} onClick={props.onClick}>
             {props.title}
         </button>
     );

@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import style from './Login.module.css';
 import Page from '../../components/Page/Page';
 import FormBox from '../../components/FormBox/FormBox';
@@ -7,6 +7,7 @@ import Button from '../../components/Button/Button';
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
 import {useCookies} from 'react-cookie';
+import {API_BASE_URL} from "../../index";
 
 
 function Login() {
@@ -18,6 +19,12 @@ function Login() {
     const [cookie, setCookie] = useCookies(['jwt']);
     const [error, setError] = useState('');
 
+    useEffect(() => {
+        if (cookie.jwt) {
+            navigate('/');
+        }
+    }, [cookie.jwt, navigate]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -28,7 +35,7 @@ function Login() {
         };
 
         try {
-            const response = await axios.post('http://localhost:8000/api/login_check', formData);
+            const response = await axios.post(`${API_BASE_URL}api/login_check`, formData);
             const token = response.data.token;
 
             setCookie('jwt', token, {

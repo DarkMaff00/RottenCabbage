@@ -7,6 +7,7 @@ import Input from "../../components/Input/Input";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import {useCookies} from 'react-cookie';
+import {API_BASE_URL} from "../../index";
 
 
 function DeleteAccount() {
@@ -28,7 +29,7 @@ function DeleteAccount() {
 
         try {
             await axios.delete(
-                'http://localhost:8000/deleteAccount',
+                `${API_BASE_URL}deleteAccount`,
                 {
                     headers: {
                         Authorization: `Bearer ${cookies.jwt}`,
