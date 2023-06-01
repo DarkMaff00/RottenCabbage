@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import style from './Settings.module.css';
 import Page from '../../components/Page/Page';
 import FormBox from "../../components/FormBox/FormBox";
@@ -12,14 +12,15 @@ function Settings() {
 
     const navigate = useNavigate();
     const [cookie, setCookie, removeCookie] = useCookies(['jwt']);
+    const [email, setEmail] = useState('');
 
     useEffect(() => {
         if (!cookie.jwt) {
             navigate('/');
+        } else {
+            setEmail(jwt_decode(cookie.jwt)['username'])
         }
     }, [cookie.jwt, navigate]);
-
-    const email = jwt_decode(cookie.jwt)['username'];
 
     const handleLogout = () => {
         removeCookie('jwt');

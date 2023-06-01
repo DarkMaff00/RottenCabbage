@@ -136,12 +136,27 @@ class UserController extends AbstractController
     }
 
     #[Route('/changePassword', methods: ['PUT'])]
-    public function changePassword(): JsonResponse
+    public function changePassword(Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
     {
-        $data = [
-            'route' => 'changePassword'
-        ];
-        return new JsonResponse($data);
+        try {
+            $user = $accessTokenHandler->getUserBadgeFrom($request);
+        } catch (BadCredentialsException $e) {
+            return new JsonResponse(["message" => $e], 400);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $password = $data['password'];
+        $newPassword = $data['new_password'];
+
+        if (!$this->passwordHashed->isPasswordValid($user, $password)) {
+            return new JsonResponse(["message" => "Invalid password"], 400);
+        }
+
+        $hashedPassword = $this->passwordHashed->hashPassword($user, $newPassword);
+        $user->setPassword($hashedPassword);
+        $this->userRepository->save($user, $newPassword);
+
+        return new JsonResponse(["message" => "Password changed successfully"]);
     }
 
 }
