@@ -25,6 +25,18 @@
     gap: 1em;
 }
 
+.exitButton, .dropdownContainer, .dropdown {
+    font-size: 1em;
+    display: inline-block;
+    outline: 0;
+    cursor: pointer;
+    background-color: #4299e1;
+    padding: 8px 16px;
+    font-weight: 700;
+    color: white;
+    line-height: 26px;
+}
+
 .logoImage {
     height: 4em;
 }
@@ -53,11 +65,63 @@ a, p {
     gap: 1em;
     display: flex;
     align-items: center;
-    color: #7C7F9D;
-    font-size: 1.2em;
+    justify-content: end;
+}
+
+.userDiv img:first-child {
+    height: 2em;
+}
+
+.userDiv img:last-child {
+    height: 1em;
+}
+
+.userDiv img:last-child:hover {
+    cursor: pointer;
 }
 
 .menuTabs {
     display: flex;
     gap: 2em;
+}
+
+.whiteText {
+    color: white;
+}
+
+.email {
+    font-size: 0.9em;
+    color: white;
+}
+
+.email:hover {
+    cursor: pointer;
+}
+
+.dropdownContainer {
+    position: relative;
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.5em;
+    width: calc(100% - 32px);
+}
+
+.dropdownOption {
+    color: white;
+}
+
+.dropdownOption:hover {
+    cursor: pointer;
+}
+
+.rotated {
+    transform: rotate(180deg);
 }

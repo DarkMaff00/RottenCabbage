@@ -1,57 +1,33 @@
 import style from './NavBar.module.css';
-import React from "react";
-import {Link} from "react-router-dom";
+import React, {useState} from "react";
+import {Link, useLocation} from "react-router-dom";
 import logo from "../../images/logo.svg";
-import arrow from "../../images/arrow.svg";
 import avatar from '../../images/avatar.png';
 import userArrow from '../../images/user-arrow.svg';
+import {useCookies} from "react-cookie";
+import jwt_decode from "jwt-decode";
 
-const NavBar = props => {
+function NavBar() {
+    const location = useLocation();
 
-    const NONE = {display: 'none'};
-    let show;
-    let rankingColor;
-    let followColor;
-    let premierColor;
-    let endButton;
-    if (props.type === "login") {
-        endButton = [
-            <Link to='/signup'>
-                <div className={style.exitButton}>
-                    <div className={style.changeText}>Signup</div>
-                    <img className={style.arrow} src={arrow} alt="arrow"/>
-                </div>
-            </Link>
-        ]
-        show = NONE;
-    } else if (props.type === "signup") {
-        endButton = [
-            <Link to='/login'>
-                <div className={style.exitButton}>
-                    <div className={style.changeText}>Login</div>
-                    <img className={style.arrow} src={arrow} alt="arrow"/>
-                </div>
-            </Link>
-        ]
-        show = NONE;
-    } else {
-        endButton = [
-            <div className={style.userDiv}>
-                <img src={avatar} alt="sample-avatar"/>
-                <p>Name Surname</p>
-                <img src={userArrow} alt="userArrow"/>
-            </div>
-        ]
-        if (props.type === "ranking") {
-            rankingColor = {color: 'white'}
-        }
-        if (props.type === "following") {
-            followColor = {color: 'white'}
-        }
-        if (props.type === "premiers") {
-            premierColor = {color: 'white'}
-        }
-    }
+    const [isDropdownOpen, setDropdownOpen] = useState(false);
+    const [isArrowRotated, setArrowRotated] = useState(false);
+
+    const [cookie, setCookie, removeCookie] = useCookies(['jwt']);
+    const isRankingPage = location.pathname.endsWith('/ranking');
+    const isFollowingPage = location.pathname.endsWith('/following');
+    const isPremiersPage = location.pathname.endsWith('/premiers');
+    const isSignupPage = location.pathname.endsWith('/signup');
+    const isLoginPage = location.pathname.endsWith('/login');
+
+    const handleLogout = () => {
+        removeCookie('jwt');
+    };
+
+    const handleDropdownToggle = () => {
+        setDropdownOpen(!isDropdownOpen);
+        setArrowRotated(!isArrowRotated);
+    };
 
     return (
         <div className={style.changeInput}>
@@ -65,19 +41,47 @@ const NavBar = props => {
                         </div>
                     </div>
                 </Link>
-                <div style={show} className={style.menuTabs}>
+                <div className={style.menuTabs}>
                     <Link to='/ranking'>
-                        <p style={rankingColor}>Rankings</p>
+                        <p className={isRankingPage ? style.whiteText : ''}>Rankings</p>
                     </Link>
                     <Link to='/following'>
-                        <p style={followColor}>Following</p>
+                        <p className={isFollowingPage ? style.whiteText : ''}>Following</p>
                     </Link>
                     <Link to='/premiers'>
-                        <p style={premierColor}>Premiers</p>
+                        <p className={isPremiersPage ? style.whiteText : ''}>Premiers</p>
                     </Link>
                 </div>
             </div>
-            {endButton}
+            {isLoginPage || isSignupPage ? (
+                <Link to={isLoginPage ? '/signup' : '/login'}>
+                    <button className={style.exitButton}>{isLoginPage ? 'Signup' : 'Login'}</button>
+                </Link>
+            ) : (
+                cookie.jwt ? (
+                    <div className={style.userDiv}>
+                        <div className={style.dropdownContainer}>
+                            <Link to='/profile'><p className={style.email}>{jwt_decode(cookie.jwt)['username']}</p></Link>
+                            {isDropdownOpen && (
+                                <div className={`${style.dropdown}`}>
+                                    <Link to="/settings" className={style.dropdownOption}>Settings</Link>
+                                    <p className={style.dropdownOption} onClick={handleLogout}>Logout</p>
+                                </div>
+                            )}
+                        </div>
+                        <img
+                            src={userArrow}
+                            alt="userArrow"
+                            className={`${isArrowRotated ? style.rotated : ''}`}
+                            onClick={handleDropdownToggle}
+                        />
+                    </div>
+                ) : (
+                    <Link to="/login">
+                        <button className={style.exitButton}>Login</button>
+                    </Link>
+                )
+            )}
         </div>
     );
 }
