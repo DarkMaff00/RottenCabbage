@@ -56,3 +56,7 @@
 .follow {
     height: 3em;
 }
+
+.follow:hover {
+    cursor: pointer;
+}

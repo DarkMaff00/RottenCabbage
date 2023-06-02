@@ -124,11 +124,15 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     }
 
     /**
-     * @return Collection<int, self>
+     * @return Collection|array
      */
-    public function getFollowing(): Collection
+    public function getFollowing(): Collection|array
     {
-        return $this->following;
+        $response = [];
+        foreach ($this->following as $user) {
+            $response[] = $user->getId();
+        }
+        return $response;
     }
 
     public function addFollowing(self $following): self
@@ -271,7 +275,8 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     }
 
     public function eraseCredentials()
-    {}
+    {
+    }
 
     public function getUserIdentifier(): string
     {

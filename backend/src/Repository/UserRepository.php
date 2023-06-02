@@ -40,6 +40,20 @@ class UserRepository extends ServiceEntityRepository
         }
     }
 
+    public function followUser(User $follower, User $following): void
+    {
+        $follower->addFollowing($following);
+        $this->getEntityManager()->persist($follower);
+        $this->getEntityManager()->flush();
+    }
+
+    public function unfollowUser(User $follower, User $following): void
+    {
+        $follower->removeFollowing($following);
+        $this->getEntityManager()->persist($follower);
+        $this->getEntityManager()->flush();
+    }
+
     public function searchUsersByEmail(string $searchTerm, int $limit = 5)
     {
         $qb = $this->createQueryBuilder('u');

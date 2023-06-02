@@ -14,6 +14,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Security\AccessTokenHandler;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
+use function Webmozart\Assert\Tests\StaticAnalysis\contains;
 
 
 class UserController extends AbstractController
@@ -109,33 +110,78 @@ class UserController extends AbstractController
     }
 
     /**
-     * @throws NonUniqueResultException
+     * @throws NonUniqueResultException|JWTDecodeFailureException
      */
     #[Route('/user/{uuid}', methods: ['GET'])]
-    public function getUserInfo(string $uuid): JsonResponse
+    public function getUserInfo(string $uuid, Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
     {
+        $follows = false;
+        try {
+            $mainUser = $accessTokenHandler->getUserBadgeFrom($request);
+        } catch (BadCredentialsException $e) {
+            return new JsonResponse(["message" => $e], 400);
+        }
+
+
         $user = $this->userRepository->findOneById($uuid);
 
         if (!$user) {
             return new JsonResponse(['error' => 'User not found'], 400);
         }
 
+        if (in_array($uuid, $mainUser->getFollowing())) {
+            $follows = true;
+        }
+
+
         $data = [
             'email' => $user->getEmail(),
             'firstName' => $user->getFirstName(),
             'lastName' => $user->getLastName(),
+            'follows' => $follows,
         ];
 
         return new JsonResponse($data);
     }
 
-    #[Route('/user/{uuid}', methods: ['POST'])]
-    public function followUser(string $uuid): JsonResponse
+    /**
+     * @throws JWTDecodeFailureException
+     * @throws NonUniqueResultException
+     */
+    #[Route('/follow/{uuid}', methods: ['POST'])]
+    public function followUser(string $uuid, Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
     {
-        $data = [
-            'route' => 'followUser' . $uuid
-        ];
-        return new JsonResponse($data);
+        try {
+            $user = $accessTokenHandler->getUserBadgeFrom($request);
+        } catch (BadCredentialsException $e) {
+            return new JsonResponse(["message" => $e], 400);
+        }
+
+        $following = $this->userRepository->findOneById($uuid);
+        $user->addFollowing($following);
+        $this->userRepository->followUser($user, $following);
+
+        return new JsonResponse(['message' => 'User followed successfully']);
+    }
+
+    /**
+     * @throws JWTDecodeFailureException
+     * @throws NonUniqueResultException
+     */
+    #[Route('/unfollow/{uuid}', methods: ['POST'])]
+    public function unfollowUser(string $uuid, Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
+    {
+        try {
+            $user = $accessTokenHandler->getUserBadgeFrom($request);
+        } catch (BadCredentialsException $e) {
+            return new JsonResponse(["message" => $e], 400);
+        }
+
+        $following = $this->userRepository->findOneById($uuid);
+        $user->removeFollowing($following);
+        $this->userRepository->unfollowUser($user, $following);
+
+        return new JsonResponse(['message' => 'User unfollowed successfully']);
     }
 
     /**
