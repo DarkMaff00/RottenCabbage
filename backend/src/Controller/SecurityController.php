@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\UserRepository;
+use App\Security\AccessTokenHandler;
 use Exception;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -10,6 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
 class SecurityController extends AbstractController
 {
@@ -51,5 +53,21 @@ class SecurityController extends AbstractController
         $token = $this->jwtManager->create($user, $userData);
 
         return new JsonResponse(['token' => $token]);
+    }
+
+    #[Route('access', methods: ['GET'])]
+    public function accessControl(Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
+    {
+        try {
+            $user = $accessTokenHandler->getUserBadgeFrom($request);
+        } catch (BadCredentialsException $e) {
+            return new JsonResponse(["message" => $e], 400);
+        }
+
+        if (!$user->isIsAdmin()) {
+            return new JsonResponse(["message" => "Permission denied"], 403);
+        }
+
+        return new JsonResponse(["message" => "Access Granted"], 200);
     }
 }

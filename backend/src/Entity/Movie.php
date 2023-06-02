@@ -11,12 +11,11 @@ use Doctrine\ORM\Mapping as ORM;
 class Movie
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?int $rate = null;
+    private ?float $rate = null;
 
     #[ORM\Column]
     private ?bool $is_movie = null;
@@ -45,7 +44,14 @@ class Movie
         return $this->id;
     }
 
-    public function getRate(): ?int
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    public function getRate(): ?float
     {
         return $this->rate;
     }

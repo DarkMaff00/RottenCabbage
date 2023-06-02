@@ -1,28 +1,78 @@
-import React from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import style from './addMovie.module.css';
 import Page from '../../components/Page/Page';
 import FormBox from "../../components/FormBox/FormBox";
 import Button from "../../components/Button/Button";
 import Input from "../../components/Input/Input";
+import {useCookies} from "react-cookie";
+import {useNavigate} from "react-router-dom";
+import axios from "axios";
+import {API_BASE_URL} from "../../index";
 
 
 function AddMovie() {
 
+    const navigate = useNavigate();
+    const [cookie] = useCookies(['jwt']);
+    const titleRef = useRef(null);
+    const [error, setError] = useState('');
+
+    const checkAccess = async () => {
+        return await axios.get(
+            `${API_BASE_URL}access`,
+            {
+                headers: {
+                    Authorization: `Bearer ${cookie.jwt}`,
+                }
+            }
+        );
+    };
+
+    useEffect(() => {
+        if (!cookie.jwt) {
+            navigate('/');
+        }
+        checkAccess().then(r => {
+            console.log(r.status);
+            if (r.status !== 200)
+                throw r;
+        }).catch(() => {
+            navigate('/');
+        });
+    }, [cookie.jwt, navigate]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+
+        const formData = {
+            title: titleRef.current.value,
+        };
+
+        try {
+            const response = await axios.post(`${API_BASE_URL}addMovie`, formData);
+            setError(response.data);
+            setTimeout(() => {
+                titleRef.current.value = "";
+                setError("");
+            }, 2000);
+        } catch (error) {
+            setError(error.response.data.message);
+        }
+    };
+
     return (
         <Page subpage="addMovie">
-            <FormBox>
+            <FormBox onSubmit={handleSubmit}>
                 <h1 className={style.title}>Add Movie</h1>
-                <Input title="Title" type="text" required="True"/>
-                <Input title="Direction" type="text" required="True"/>
-                <Input title="Script" type="text" required="True"/>
-                <Input title="Genre" type="text" required="True"/>
-                <Input title="Production" type="text" required="True"/>
-                <Input title="Premier" type="date" required="True"/>
-                <Input title="Trailer" type="url" required="True"/>
-                <Input title="Rotten Tomatoes" type="url" required="True"/>
-                <p>Description</p>
-                <textarea/>
-                <Button title="Add"/>
+                <Input
+                    title="Title"
+                    type="text"
+                    required={true}
+                    ref={titleRef}
+                />
+                <div className={style.errorText}>{error.message}</div>
+                <Button title="Add" type="submit"/>
             </FormBox>
         </Page>
     );
