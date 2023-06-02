@@ -1,5 +1,5 @@
 .movieTab {
-    width: auto;
+    width: 70%;
     display: flex;
     margin-top: 2em;
     background: #22212D;
@@ -8,15 +8,16 @@
 }
 
 .number, .mark {
-    font-size: 3em;
+    font-size: 2em;
     font-weight: bold;
     color: white;
     width: 10%;
     text-align: center;
+    align-self: center;
 }
 
 .poster {
-    height: 10em;
+    height: 9em;
 }
 
 .movieInfo {
@@ -24,7 +25,7 @@
     margin-left: 1em;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
 }
 
 .movieTitle {
@@ -56,4 +57,8 @@
     font-weight: bold;
     color: white;
     width: 100%;
+}
+
+.grade > img {
+    height: 3em;
 }

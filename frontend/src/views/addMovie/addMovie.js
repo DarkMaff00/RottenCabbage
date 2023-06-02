@@ -33,7 +33,6 @@ function AddMovie() {
             navigate('/');
         }
         checkAccess().then(r => {
-            console.log(r.status);
             if (r.status !== 200)
                 throw r;
         }).catch(() => {
@@ -57,7 +56,7 @@ function AddMovie() {
                 setError("");
             }, 2000);
         } catch (error) {
-            setError(error.response.data.message);
+            setError(error);
         }
     };
 

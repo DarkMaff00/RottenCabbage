@@ -26,23 +26,48 @@ class MovieController extends AbstractController
         $this->movieRepository = $movieRepository;
     }
 
+    /**
+     * @throws GuzzleException
+     */
     #[Route('/ranking', methods: ['GET'])]
     public function getMovies(): JsonResponse
     {
+        $client = new Client([
+            'verify' => false
+        ]);
+        $token = $_ENV['API_TOKEN'];
+        $movies = $this->movieRepository->findAll();
+        $data = [];
+        foreach ($movies as $movie) {
+            $id = $movie->getId();
+            $response = $client->request('GET', 'https://api.themoviedb.org/3/movie/' . $id,
+                [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $token
+                    ]
+                ]);
+            $body = $response->getBody()->getContents();
+            $desc = json_decode($body, true);
 
-        $data = [
-            'route' => 'movies'
-        ];
-        return new JsonResponse($data);
-    }
 
-    #[Route('/ranking/series', methods: ['GET'])]
-    public function getSeries(): JsonResponse
-    {
+            $title = $desc["title"];
+            try {
+                $genre = $desc["genres"][0]["name"];
+            } catch (ErrorException) {
+                $genre = "Movie";
+            }
 
-        $data = [
-            'route' => 'series'
-        ];
+
+            $data[] = [
+                'id' => $id,
+                'title' => $title,
+                'genre' => $genre,
+                'rate' => $movie->getRate(),
+                'critic' => $desc["vote_average"],
+                'poster' => 'https://image.tmdb.org/t/p/original/' . $desc['poster_path']
+            ];
+        }
+
         return new JsonResponse($data);
     }
 
