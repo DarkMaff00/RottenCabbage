@@ -1,14 +1,16 @@
 import style from './NavBar.module.css';
 import React, {useState} from "react";
-import {Link, useLocation} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import logo from "../../images/logo.svg";
-import avatar from '../../images/avatar.png';
 import userArrow from '../../images/user-arrow.svg';
 import {useCookies} from "react-cookie";
 import jwt_decode from "jwt-decode";
+import axios from "axios";
+import {API_BASE_URL} from "../../index";
 
 function NavBar() {
     const location = useLocation();
+    const navigate = useNavigate();
 
     const [isDropdownOpen, setDropdownOpen] = useState(false);
     const [isArrowRotated, setArrowRotated] = useState(false);
@@ -22,6 +24,13 @@ function NavBar() {
 
     const handleLogout = () => {
         removeCookie('jwt');
+    };
+
+    const viewProfile = async (e) => {
+        e.preventDefault();
+        const response = await axios.get(`${API_BASE_URL}${jwt_decode(cookie.jwt)['username']}`);
+        const id = response.data
+        navigate('/profile/' + id);
     };
 
     const handleDropdownToggle = () => {
@@ -61,7 +70,7 @@ function NavBar() {
                 cookie.jwt ? (
                     <div className={style.userDiv}>
                         <div className={style.dropdownContainer}>
-                            <Link to='/profile'><p className={style.email}>{jwt_decode(cookie.jwt)['username']}</p></Link>
+                            <p onClick={viewProfile} className={style.email}>{jwt_decode(cookie.jwt)['username']}</p>
                             {isDropdownOpen && (
                                 <div className={`${style.dropdown}`}>
                                     <Link to="/settings" className={style.dropdownOption}>Settings</Link>

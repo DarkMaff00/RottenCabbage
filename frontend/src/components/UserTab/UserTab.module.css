@@ -1,0 +1,14 @@
+.userTab {
+    border: 1px solid white;
+    margin-bottom: 0.2em;
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+
+.names {
+    color: white;
+}
+
+.userTab:hover {
+    cursor: pointer;
+}

@@ -60,13 +60,24 @@ class UserController extends AbstractController
 
     }
 
-    #[Route('/following/{uuid}', methods: ['GET'])]
-    public function getFollowing(string $uuid): JsonResponse
+    #[Route('/users', methods: ['GET'])]
+    public function getUsers(Request $request): JsonResponse
     {
-        $data = [
-            'route' => 'following' . $uuid
-        ];
-        return new JsonResponse($data);
+        $searchTerm = $request->query->get('search');
+
+        $users = $this->userRepository->searchUsersByEmail($searchTerm);
+
+        $response = [];
+        foreach ($users as $user) {
+            $response[] = [
+                'email' => $user->getEmail(),
+                'firstName' => $user->getFirstName(),
+                'lastName' => $user->getLastName(),
+            ];
+        }
+
+        return new JsonResponse($response);
+
     }
 
 
@@ -80,12 +91,41 @@ class UserController extends AbstractController
         return new JsonResponse($data);
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
+    #[Route('/{email}', methods: ['GET'])]
+    public function getUserId(string $email): JsonResponse
+    {
+        $user = $this->userRepository->findOneByEmail($email);
+
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not found'], 400);
+        }
+
+        $id = $user->getId();
+
+        return new JsonResponse($id);
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     */
     #[Route('/user/{uuid}', methods: ['GET'])]
     public function getUserInfo(string $uuid): JsonResponse
     {
+        $user = $this->userRepository->findOneById($uuid);
+
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not found'], 400);
+        }
+
         $data = [
-            'route' => 'user' . $uuid
+            'email' => $user->getEmail(),
+            'firstName' => $user->getFirstName(),
+            'lastName' => $user->getLastName(),
         ];
+
         return new JsonResponse($data);
     }
 
@@ -94,15 +134,6 @@ class UserController extends AbstractController
     {
         $data = [
             'route' => 'followUser' . $uuid
-        ];
-        return new JsonResponse($data);
-    }
-
-    #[Route('/settings')]
-    public function showSettings(): JsonResponse
-    {
-        $data = [
-            'route' => 'settings'
         ];
         return new JsonResponse($data);
     }

@@ -59,6 +59,7 @@ const Input = forwardRef((props, ref) => {
                 }
                 break;
             default:
+                props.onChange?.(value);
                 break;
         }
     };
