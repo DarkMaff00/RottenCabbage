@@ -62,3 +62,7 @@
 .grade > img {
     height: 3em;
 }
+
+.movieTab:hover {
+    cursor: pointer;
+}

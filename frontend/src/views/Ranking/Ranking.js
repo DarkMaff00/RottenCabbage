@@ -37,6 +37,7 @@ function Ranking() {
                         movies.map((movie, index) => (
                             <MovieTab
                                 key={movie.id}
+                                movieId={movie.id}
                                 number={index + 1}
                                 title={movie.title}
                                 genre={movie.genre}

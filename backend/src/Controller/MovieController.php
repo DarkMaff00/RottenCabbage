@@ -5,12 +5,11 @@ namespace App\Controller;
 
 use App\Entity\Movie;
 use App\Repository\MovieRepository;
-use Doctrine\DBAL\Driver\OCI8\Exception\Error;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\ORM\NonUniqueResultException;
 use ErrorException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Lcobucci\JWT\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -132,17 +131,83 @@ class MovieController extends AbstractController
         return new JsonResponse(['message' => "Movie added to database"]);
     }
 
+
+    /**
+     * @throws NonUniqueResultException
+     * @throws GuzzleException
+     */
     #[Route('/movieInfo/{uuid}', methods: ['GET'])]
     public function movieInfo(string $uuid): JsonResponse
     {
+        $client = new Client([
+            'verify' => false
+        ]);
+        $token = $_ENV['API_TOKEN'];
+
+        $response = $client->request('GET', 'https://api.themoviedb.org/3/movie/' . $uuid, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token
+            ]
+        ]);
+        $body = $response->getBody()->getContents();
+        $desc = json_decode($body, true);
+
+        $genre = $desc['genres'][0]['name'] ?? "Movie";
+
+        $movie = $this->movieRepository->findOneById($uuid);
+
+        $videosResponse = $client->request('GET', 'https://api.themoviedb.org/3/movie/' . $uuid . '/videos', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token
+            ]
+        ]);
+        $videosBody = $videosResponse->getBody()->getContents();
+        $videos = json_decode($videosBody, true);
+
+        $trailerKey = null;
+        foreach ($videos['results'] as $video) {
+            if ($video['type'] === 'Trailer') {
+                $trailerKey = $video['key'];
+                break;
+            }
+        }
+
+        $creditsResponse = $client->request('GET', 'https://api.themoviedb.org/3/movie/' . $uuid . '/credits', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token
+            ]
+        ]);
+        $creditsBody = $creditsResponse->getBody()->getContents();
+        $credits = json_decode($creditsBody, true);
+
+        $directorName = '';
+
+        foreach ($credits['crew'] as $crew) {
+            if ($crew['job'] === 'Director') {
+                $directorName = $crew['name'];
+                break;
+            }
+        }
 
         $data = [
-            'route' => 'movieInfo' . $uuid
+            'title' => $desc['title'],
+            'genre' => $genre,
+            'rate' => $movie->getRate(),
+            'critic' => $desc['vote_average'],
+            'poster' => 'https://image.tmdb.org/t/p/original' . $desc['poster_path'],
+            'desc' => $desc['overview'],
+            'production' => $desc['production_countries'][0]['name'] ?? "Unknown",
+            'release' => $desc['release_date'],
+            'trailerKey' => 'https://www.youtube.com/watch?v=' . $trailerKey,
+            'director' => $directorName,
         ];
+
         return new JsonResponse($data);
     }
 
-    #[Route('/movieInfo/{uuid}', methods: ['POST'])]
+
+    #[
+        Route('/movieInfo/{uuid}', methods: ['POST'])]
     public function rateMovie(Request $request, string $uuid): JsonResponse
     {
 

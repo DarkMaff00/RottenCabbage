@@ -2,11 +2,20 @@ import style from './MovieTab.module.css';
 import React from "react";
 import cabbage from '../../images/logo.svg';
 import star from '../../images/star.png';
+import {useNavigate} from "react-router-dom";
 
 
-const MovieTab = props => {
+function MovieTab(props) {
+
+    const navigate = useNavigate();
+
+    const viewMovie = () => {
+        navigate('/movieInfo/' + props.movieId);
+    };
+
+
     return (
-        <div className={style.movieTab}>
+        <div className={style.movieTab} onClick={viewMovie}>
             <p className={style.number}>{props.number}</p>
             <img className={style.poster} src={props.poster} alt="poster"/>
             <div className={style.movieInfo}>
