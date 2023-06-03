@@ -36,7 +36,6 @@ class MovieController extends AbstractController
         ]);
         $token = $_ENV['API_TOKEN'];
         $movies = $this->movieRepository->findAll();
-        $data = [];
         foreach ($movies as $movie) {
             $id = $movie->getId();
             $response = $client->request('GET', 'https://api.themoviedb.org/3/movie/' . $id,
@@ -50,11 +49,7 @@ class MovieController extends AbstractController
 
 
             $title = $desc["title"];
-            try {
-                $genre = $desc["genres"][0]["name"];
-            } catch (ErrorException) {
-                $genre = "Movie";
-            }
+            $genre = $desc['genres'][0]['name'] ?? "Movie";
 
 
             $data[] = [
@@ -66,6 +61,12 @@ class MovieController extends AbstractController
                 'poster' => 'https://image.tmdb.org/t/p/original/' . $desc['poster_path']
             ];
         }
+
+        usort($data, function ($a, $b) {
+            $sumA = $a['rate'] + $a['critic'];
+            $sumB = $b['rate'] + $b['critic'];
+            return $sumB <=> $sumA;
+        });
 
         return new JsonResponse($data);
     }
