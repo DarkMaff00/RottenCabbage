@@ -2,7 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Favourite;
 use App\Entity\User;
+use App\Repository\FavouriteRepository;
+use App\Repository\MovieRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Exception;
@@ -21,12 +24,20 @@ class UserController extends AbstractController
 {
 
     private UserRepository $userRepository;
+    private MovieRepository $movieRepository;
+
+    private FavouriteRepository $favouriteRepository;
     private UserPasswordHasherInterface $passwordHashed;
 
-    public function __construct(UserRepository $userRepository, UserPasswordHasherInterface $passwordHashed)
+    public function __construct(UserRepository              $userRepository,
+                                UserPasswordHasherInterface $passwordHashed,
+                                MovieRepository             $movieRepository,
+                                FavouriteRepository         $favouriteRepository)
     {
         $this->userRepository = $userRepository;
         $this->passwordHashed = $passwordHashed;
+        $this->movieRepository = $movieRepository;
+        $this->favouriteRepository = $favouriteRepository;
     }
 
     /**
@@ -235,5 +246,85 @@ class UserController extends AbstractController
 
         return new JsonResponse(["message" => "Password changed successfully"]);
     }
+
+    /**
+     * @throws JWTDecodeFailureException
+     * @throws NonUniqueResultException
+     */
+    #[Route('/addFavourite/{movieId}', methods: ['POST'])]
+    public function favouriteMovie(string $movieId, Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
+    {
+        try {
+            $user = $accessTokenHandler->getUserBadgeFrom($request);
+        } catch (BadCredentialsException $e) {
+            return new JsonResponse(["message" => $e], 400);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $isFavourite = $data['isFavourite'];
+
+        $movie = $this->movieRepository->findOneById($movieId);
+
+        $favourite = new Favourite();
+        $favourite->setIsFavourite($isFavourite);
+        $favourite->setUserName($user);
+        $favourite->setMovie($movie);
+
+        foreach ($user->getSpecials()->getValues() as $fav) {
+            if ($favourite->equals($fav)) {
+                $this->favouriteRepository->remove($fav, true);
+                $user->removeSpecial($fav);
+                return new JsonResponse(["message" => "Removed from favourite"]);
+            }
+        }
+
+        $user->addSpecial($favourite);
+        $this->favouriteRepository->save($favourite, true);
+        return new JsonResponse(["message" => "Added to favourite"]);
+    }
+
+    #[Route('/checkStates/{movieId}', methods: ['GET'])]
+    public function checkMovieStates(string $movieId, Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
+    {
+        try {
+            $user = $accessTokenHandler->getUserBadgeFrom($request);
+        } catch (BadCredentialsException $e) {
+            return new JsonResponse(["message" => $e], 400);
+        }
+
+        $movie = $this->movieRepository->findOneById($movieId);
+
+        $favourite = new Favourite();
+        $favourite->setIsFavourite(true);
+        $favourite->setUserName($user);
+        $favourite->setMovie($movie);
+
+        $isFavourite = false;
+        $wantToSee = false;
+
+        foreach ($user->getSpecials()->getValues() as $fav) {
+            if ($favourite->equals($fav)) {
+                $isFavourite = true;
+                break;
+            }
+        }
+
+        $favourite->setIsFavourite(false);
+
+        foreach ($user->getSpecials()->getValues() as $fav) {
+            if ($favourite->equals($fav)) {
+                $wantToSee = true;
+                break;
+            }
+        }
+
+        $data = [
+            'favourite' => $isFavourite,
+            'wantToSee' => $wantToSee,
+        ];
+
+        return new JsonResponse($data);
+    }
+
 
 }

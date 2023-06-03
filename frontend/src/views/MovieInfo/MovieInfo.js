@@ -6,23 +6,51 @@ import cabbage from "../../images/logo.svg";
 import star from "../../images/star.png";
 import avatar from "../../images/avatar.png";
 import follow from "../../images/follow.svg";
+import followFilled from "../../images/followFilled.svg";
 import wantSee from "../../images/eye.svg";
+import wantSeeFilled from "../../images/eyeFilled.svg";
 import FormBox from "../../components/FormBox/FormBox";
 import Input from "../../components/Input/Input";
 import Review from "../../components/Review/Review";
 import axios from "axios";
 import {API_BASE_URL} from "../../index";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
+import {useCookies} from "react-cookie";
 
 
 function MovieInfo() {
 
+    const navigate = useNavigate();
     const {id} = useParams();
     const [movieInfo, setMovieInfo] = useState([]);
+    const [cookie] = useCookies(['jwt']);
+    const [fav, setFav] = useState(false);
+    const [wts, setWts] = useState(false);
 
     const fetchData = async () => {
         return await axios.get(`${API_BASE_URL}movieInfo/${id}`);
     };
+
+    const checkState = async () => {
+        return await axios.get(`${API_BASE_URL}checkStates/${id}`, {
+            headers: {
+                Authorization: `Bearer ${cookie.jwt}`,
+            }
+        });
+    };
+
+    const handleSubmit = async (value) => {
+        return await axios.post(`${API_BASE_URL}addFavourite/${id}`,
+            {
+                'isFavourite': value,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${cookie.jwt}`,
+                }
+            });
+    };
+
 
     useEffect(() => {
         fetchData().then(r => {
@@ -30,14 +58,51 @@ function MovieInfo() {
         })
             .then((data) => {
                 setMovieInfo(data);
+            }).catch(() => {
+            navigate('/');
+        })
+        checkState().then(r => {
+            if (r.status === 200) return r.data;
+        })
+            .then((data) => {
+                if (data.favourite) {
+                    setFav(true);
+                }
+                if (data.wantToSee) {
+                    setWts(true);
+                }
             })
     }, []);
-
-    console.log(movieInfo);
 
     const showTrailer = () => {
         window.open(movieInfo.trailerKey, "_blank");
     };
+
+    const addFavourite = () => {
+        if (!cookie.jwt) {
+            navigate('/login');
+        } else {
+            handleSubmit(true).then(r => {
+                if (r.status === 200) return r.data;
+            })
+                .then(() => {
+                    setFav(!fav);
+                })
+        }
+    }
+
+    const addWantToWatch = () => {
+        if (!cookie.jwt) {
+            navigate('/login');
+        } else {
+            handleSubmit(false).then(r => {
+                if (r.status === 200) return r.data;
+            })
+                .then(() => {
+                    setWts(!wts);
+                })
+        }
+    }
 
 
     return (
@@ -83,8 +148,10 @@ function MovieInfo() {
                             <img className={style.smallIcon} src={star} alt="star"/>
                             <img className={style.smallIcon} src={star} alt="star"/>
                         </div>
-                        <img className={style.smallIcon} src={follow} alt="heart"/>
-                        <img className={style.smallIcon} src={wantSee} alt="eye"/>
+                        <img className={style.smallIcon} src={fav ? (followFilled) : (follow)}
+                             onClick={addFavourite} alt="heart"/>
+                        <img className={style.smallIcon} src={wts ? (wantSeeFilled) : (wantSee)}
+                             onClick={addWantToWatch} alt="eye"/>
                     </div>
                 </div>
             </div>

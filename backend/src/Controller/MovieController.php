@@ -195,6 +195,10 @@ class MovieController extends AbstractController
             'verify' => false
         ]);
         $token = $_ENV['API_TOKEN'];
+        $movie = $this->movieRepository->findOneById($uuid);
+        if (!$movie) {
+            return new JsonResponse(['message' => 'Movie not found'], 404);
+        }
 
         $response = $client->request('GET', 'https://api.themoviedb.org/3/movie/' . $uuid, [
             'headers' => [
@@ -265,16 +269,6 @@ class MovieController extends AbstractController
 
         $data = [
             'route' => 'rateMovie' . $uuid
-        ];
-        return new JsonResponse($data);
-    }
-
-    #[Route('/movieInfo/{uuid}', methods: ['POST'])]
-    public function favouriteMovie(string $uuid): JsonResponse
-    {
-
-        $data = [
-            'route' => 'favouriteMovie' . $uuid
         ];
         return new JsonResponse($data);
     }

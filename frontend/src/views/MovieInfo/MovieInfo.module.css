@@ -83,3 +83,7 @@
 .smallIcon {
     height: 1.5em;
 }
+
+.smallIcon:hover {
+    cursor: pointer;
+}

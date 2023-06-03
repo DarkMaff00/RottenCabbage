@@ -64,4 +64,15 @@ class Favourite
 
         return $this;
     }
+
+    public function equals($other): bool
+    {
+        if (!$other instanceof self) {
+            return false;
+        }
+
+        return $this->user_name->getId() === $other->getUserName()->getId()
+            && $this->movie->getId() === $other->getMovie()->getId()
+            && $this->is_favourite === $other->isIsFavourite();
+    }
 }
