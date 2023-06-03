@@ -71,15 +71,66 @@ class MovieController extends AbstractController
         return new JsonResponse($data);
     }
 
+    /**
+     * @throws GuzzleException
+     */
     #[Route('/premiers', methods: ['GET'])]
     public function getPremiers(): JsonResponse
     {
+        $premiers = [];
+        $client = new Client([
+            'verify' => false
+        ]);
+        $token = $_ENV['API_TOKEN'];
+        $response = $client->request('GET', 'https://api.themoviedb.org/3/movie/upcoming', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token
+            ]
+        ]);
 
-        $data = [
-            'route' => 'premiers'
-        ];
-        return new JsonResponse($data);
+        $body = $response->getBody()->getContents();
+        $data = json_decode($body, true)["results"];
+
+        $today = strtotime(date('Y-m-d'));
+
+        foreach ($data as $movie) {
+            $releaseDate = strtotime($movie['release_date']);
+
+            if ($releaseDate > $today) {
+                $videosResponse = $client->request('GET', 'https://api.themoviedb.org/3/movie/' . $movie['id'] . '/videos', [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $token
+                    ]
+                ]);
+                $videosBody = $videosResponse->getBody()->getContents();
+                $videos = json_decode($videosBody, true);
+
+                $trailerKey = null;
+                foreach ($videos['results'] as $video) {
+                    if ($video['type'] === 'Trailer') {
+                        $trailerKey = $video['key'];
+                        break;
+                    }
+                }
+
+                $premiers[] = [
+                    'id' => $movie['id'],
+                    'title' => $movie['title'],
+                    'poster' => 'https://image.tmdb.org/t/p/original/' . $movie['poster_path'],
+                    'release' => $movie['release_date'],
+                    'desc' => $movie['overview'],
+                    'trailerKey' => 'https://www.youtube.com/watch?v=' . $trailerKey,
+                ];
+            }
+        }
+
+        usort($premiers, function($a, $b) {
+            return strtotime($a['release']) - strtotime($b['release']);
+        });
+
+        return new JsonResponse($premiers);
     }
+
 
     /**
      * @throws GuzzleException

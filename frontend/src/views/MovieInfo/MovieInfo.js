@@ -44,7 +44,7 @@ function MovieInfo() {
         <Page subpage="movieInfo">
             <div className={style.section}>
                 <div className={style.movie}>
-                    <img className={style.poster} src={movieInfo.poster} alt="iron-man"/>
+                    <img className={style.poster} src={movieInfo.poster} alt="poster"/>
                     <p>{movieInfo.title}</p>
                     <Button title="TRAILER" width="80%" onClick={showTrailer}/>
                 </div>

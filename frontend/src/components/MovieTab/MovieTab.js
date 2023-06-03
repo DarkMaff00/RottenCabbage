@@ -1,18 +1,32 @@
 import style from './MovieTab.module.css';
-import React from "react";
+import React, {useEffect, useState} from "react";
 import cabbage from '../../images/logo.svg';
 import star from '../../images/star.png';
 import {useNavigate} from "react-router-dom";
 
-
 function MovieTab(props) {
-
+    const [isPremier, setIsPremier] = useState(false);
     const navigate = useNavigate();
 
     const viewMovie = () => {
-        navigate('/movieInfo/' + props.movieId);
+        if (!isPremier) {
+            navigate('/movieInfo/' + props.movieId);
+        } else {
+            window.open(props.trailer, "_blank");
+        }
     };
 
+    const handleTypeChange = () => {
+        if (props.type === "premier") {
+            setIsPremier(true);
+        } else {
+            setIsPremier(false);
+        }
+    };
+
+    useEffect(() => {
+        handleTypeChange();
+    }, [props.type]);
 
     return (
         <div className={style.movieTab} onClick={viewMovie}>
@@ -20,16 +34,31 @@ function MovieTab(props) {
             <img className={style.poster} src={props.poster} alt="poster"/>
             <div className={style.movieInfo}>
                 <p className={style.movieTitle}>{props.title}</p>
-                <div className={style.movieGenre}>Genre:<p className={style.genreInfo}>{props.genre}</p></div>
+                {
+                    !isPremier ? (
+                        <div className={style.movieGenre}>
+                            Genre:
+                            <p className={style.genreInfo}>{props.genre}</p>
+                        </div>
+                    ) : (
+                        <p className={style.genreInfo}>{props.date}</p>
+                    )
+                }
             </div>
-            <div className={style.grade}>
-                <img src={cabbage} alt="cabbage"/>
-                <p className={style.mark}>{props.grade}</p>
-            </div>
-            <div className={style.grade}>
-                <img src={star} alt="star"/>
-                <p className={style.mark}>{props.mark}</p>
-            </div>
+            {!isPremier ? (
+                <div className={style.grade}>
+                    <img src={cabbage} alt="cabbage"/>
+                    <p className={style.mark}>{props.grade}</p>
+                </div>
+            ) : (
+                <p className={style.desc}>{props.desc}</p>
+            )}
+            {!isPremier && (
+                <div className={style.grade}>
+                    <img src={star} alt="star"/>
+                    <p className={style.mark}>{props.mark}</p>
+                </div>
+            )}
         </div>
     );
 }
