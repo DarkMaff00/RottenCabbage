@@ -1,14 +1,16 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import style from './Ranking.module.css';
 import Page from '../../components/Page/Page';
 import Input from "../../components/Input/Input";
 import MovieTab from "../../components/MovieTab/MovieTab";
 import axios from "axios";
-import {API_BASE_URL} from "../../index";
+import { API_BASE_URL } from "../../index";
 
 function Ranking() {
     const [movies, setMovies] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const moviesPerPage = 20;
 
     const fetchData = async () => {
         return await axios.get(`${API_BASE_URL}ranking`);
@@ -26,11 +28,23 @@ function Ranking() {
 
     const searchMovies = (value) => {
         setSearchTerm(value);
+        setCurrentPage(1);
+    };
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
     };
 
     const filteredMovies = movies.filter((movie) =>
         movie.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+
+    const indexOfLastMovie = currentPage * moviesPerPage;
+    const indexOfFirstMovie = indexOfLastMovie - moviesPerPage;
+    const currentMovies = filteredMovies.slice(indexOfFirstMovie, indexOfLastMovie);
+
+    const totalPages = Math.ceil(filteredMovies.length / moviesPerPage);
 
     return (
         <Page subpage="ranking">
@@ -44,17 +58,28 @@ function Ranking() {
                     <hr className={style.line}></hr>
                 </div>
                 <div className={style.movies}>
-                    {filteredMovies.map((movie, index) => (
+                    {currentMovies.map((movie, index) => (
                         <MovieTab
                             key={movie.id}
                             movieId={movie.id}
-                            number={index + 1}
+                            number={(currentPage - 1) * moviesPerPage + index + 1}
                             title={movie.title}
                             genre={movie.genre}
                             grade={movie.critic.toFixed(2)}
                             mark={movie.rate.toFixed(2)}
                             poster={movie.poster}
                         />
+                    ))}
+                </div>
+                <div className={style.pagination}>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
+                        <button
+                            key={pageNumber}
+                            onClick={() => handlePageChange(pageNumber)}
+                            className={pageNumber === currentPage ? style.active : style.normal}
+                        >
+                            {pageNumber}
+                        </button>
                     ))}
                 </div>
             </div>

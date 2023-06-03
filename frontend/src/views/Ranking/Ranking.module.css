@@ -31,3 +31,21 @@
     flex-direction: column;
     gap: 2em;
 }
+
+.pagination {
+    margin-top: 2em;
+    display: flex;
+    gap:0.5em;
+}
+
+.normal, .active {
+    background: linear-gradient(180deg, #3A6374 0%, rgba(70, 108, 125, 0.4) 100%);
+    border-radius: 2px;
+    color: #7C7F9D;
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.active {
+    color: white;
+}
