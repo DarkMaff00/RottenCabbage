@@ -55,10 +55,14 @@
     margin:0;
 }
 
-.like > img {
+.like > img, .bin {
     height: 1.2em;
 }
 
-.like > img:hover {
+.like > img:hover, .bin:hover {
     cursor: pointer;
+}
+
+.bin {
+    margin-left: 1em;
 }

@@ -58,13 +58,15 @@ class ReviewController extends AbstractController
         return new JsonResponse("Review created");
     }
 
-    #[Route('/movieInfo/{uuid}', methods: ['DELETE'])]
-    public function deleteReview(string $uuid): JsonResponse
+    /**
+     * @throws NonUniqueResultException
+     */
+    #[Route('/deleteReview/{id}', methods: ['DELETE'])]
+    public function deleteReview(string $id): JsonResponse
     {
+        $review = $this->reviewRepository->findOneById($id);
+        $this->reviewRepository->remove($review, true);
 
-        $data = [
-            'route' => 'deleteReview' . $uuid
-        ];
-        return new JsonResponse($data);
+        return new JsonResponse("Review deleted");
     }
 }

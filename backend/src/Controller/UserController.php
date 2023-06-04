@@ -398,14 +398,28 @@ class UserController extends AbstractController
         }
 
         $review = $this->reviewRepository->findOneById($id);
+        $owner = false;
+
+        if ($review->getUserName()->getId() == $user->getId()) {
+            $owner = true;
+        }
 
         $alreadyLiked = $user->getLikeReview()->getValues();
         foreach ($alreadyLiked as $like) {
             if ($review->getId() == $like->getId()) {
-                return new JsonResponse(true);
+                $response = [
+                    "liked" => true,
+                    "owner" => $owner
+                ];
+                return new JsonResponse($response);
             }
         }
-        return new JsonResponse(false);
+
+        $response = [
+            "liked" => false,
+            "owner" => $owner
+        ];
+        return new JsonResponse($response);
     }
 
 
