@@ -5,17 +5,19 @@
     border-radius: 10px;
     padding: 0.5em;
     align-items: center;
+    margin-top: 1em;
 }
 
 .user {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    width: 20%;
+    align-items: flex-start;
+    width: 12%;
 }
 
-.user > p {
-    margin: 0;
+.name {
+    color: white;
+    font-size: 0.7em;
 }
 
 .icon {
@@ -27,18 +29,18 @@
     flex-direction: column;
     align-items: flex-start;
     width: 65%;
-    overflow: hidden;
     align-self: flex-start;
 }
 
 .date {
     color: #7C7F9D;
     font-weight: bold;
-    font-size: 0.5em;
+    font-size: 0.7em;
 }
 
 .text {
     color:white;
+    overflow-wrap: anywhere;
 }
 
 .like {
@@ -51,4 +53,8 @@
 
 .like > p {
     margin:0;
+}
+
+.like > img {
+    height: 1.2em;
 }

@@ -32,10 +32,18 @@ function MovieInfo() {
     const [userRate, setUserRate] = useState(0);
     const [movieRate, setMovieRate] = useState(0);
     const [message, setMessage] = useState('');
+    const [reviews, setReviews] = useState([]);
 
     const fetchData = async () => {
         return await axios.get(`${API_BASE_URL}movieInfo/${id}`);
     };
+
+
+    const getReviews = async () => {
+        const response = await axios.get(`${API_BASE_URL}getReviews/${id}`);
+        setReviews(response.data);
+    };
+
 
     const checkState = async () => {
         return await axios.get(`${API_BASE_URL}checkStates/${id}`, {
@@ -114,6 +122,7 @@ function MovieInfo() {
                     }
                 })
         }
+        getReviews();
         fetchData().then(r => {
             if (r.status === 200) return r.data;
         })
@@ -271,10 +280,15 @@ function MovieInfo() {
                 </FormBox>
             }
             <FormBox>
-                <Review/>
-                <Review/>
-                <Review/>
-                <Review/>
+                {reviews.map((review) => (
+                    <Review
+                        key={review.id}
+                        email={review.email}
+                        context={review.context}
+                        likes={review.likes}
+                        date={review.date.date.split(' ')[0]}
+                    />
+                ))}
             </FormBox>
         </Page>
     );

@@ -23,7 +23,8 @@ function NavBar() {
     const isLoginPage = location.pathname.endsWith('/login');
 
     const handleLogout = () => {
-        removeCookie('jwt');
+        removeCookie('jwt',{path:'/'});
+        navigate('/');
     };
 
     const viewProfile = async (e) => {

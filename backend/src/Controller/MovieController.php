@@ -264,12 +264,34 @@ class MovieController extends AbstractController
     /**
      * @throws NonUniqueResultException
      */
-    #[Route('/getRate/{uuid}', methods: ['GET'])]
-    public function getRate(string $uuid): JsonResponse
+    #[Route('/getRate/{movieId}', methods: ['GET'])]
+    public function getRate(string $movieId): JsonResponse
     {
-        $movie = $this->movieRepository->findOneById($uuid);
+        $movie = $this->movieRepository->findOneById($movieId);
         $data = $movie->getRate();
 
         return new JsonResponse($data);
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     */
+    #[Route('/getReviews/{movieId}', methods: ['GET'])]
+    public function getReviews(string $movieId): JsonResponse
+    {
+        $movie = $this->movieRepository->findOneById($movieId);
+        $data = $movie->getReviews();
+        $reviews = [];
+        foreach ($data as $rev) {
+            $reviews[] = [
+                'email' => $rev->getUserName()->getEmail(),
+                'id' => $rev->getId(),
+                'date' => $rev->getAddDate(),
+                'context' => $rev->getDescription(),
+                'likes' => $rev->getNumOfLikes()
+            ];
+        }
+
+        return new JsonResponse($reviews);
     }
 }
