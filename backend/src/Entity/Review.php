@@ -21,7 +21,7 @@ class Review
     private ?string $description = null;
 
     #[ORM\Column]
-    private ?int $num_of_likes = null;
+    private ?int $num_of_likes = 0;
 
     #[ORM\ManyToOne(inversedBy: 'reviews')]
     #[ORM\JoinColumn(nullable: false)]

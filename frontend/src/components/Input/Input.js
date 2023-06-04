@@ -68,6 +68,7 @@ const Input = forwardRef((props, ref) => {
         <div className={style.alignInput}>
             <p className={style.titleInput}>{props.title}</p>
             <input
+                maxLength={props.maxlength}
                 ref={ref}
                 className={`${style.styleInput} ${error && style.errorInput}`}
                 type={props.type}

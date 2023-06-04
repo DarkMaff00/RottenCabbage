@@ -2,21 +2,60 @@
 
 namespace App\Controller;
 
+use App\Entity\Review;
+use App\Repository\MovieRepository;
+use App\Repository\ReviewRepository;
+use App\Security\AccessTokenHandler;
+use Doctrine\ORM\NonUniqueResultException;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-// Review znajomcyh i all
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
+
 class ReviewController extends AbstractController
 {
-    #[Route('/movieInfo/{uuid}', methods: ['POST'])]
-    public function addReview(Request $request, string $uuid): JsonResponse
-    {
+    private MovieRepository $movieRepository;
+    private ReviewRepository $reviewRepository;
 
-        $data = [
-            'route' => 'addReview'.$uuid
-        ];
-        return new JsonResponse($data);
+    public function __construct(MovieRepository $movieRepository, ReviewRepository $reviewRepository)
+    {
+        $this->movieRepository = $movieRepository;
+        $this->reviewRepository = $reviewRepository;
+    }
+
+    /**
+     * @throws JWTDecodeFailureException
+     * @throws NonUniqueResultException
+     */
+    #[Route('/addReview/{movieId}', methods: ['POST'])]
+    public function addReview(Request $request, string $movieId, AccessTokenHandler $accessTokenHandler): JsonResponse
+    {
+        try {
+            $user = $accessTokenHandler->getUserBadgeFrom($request);
+        } catch (BadCredentialsException $e) {
+            return new JsonResponse(["message" => $e], 400);
+        }
+        $movie = $this->movieRepository->findOneById($movieId);
+        $requestData = json_decode($request->getContent(), true);
+
+        $context = $requestData['desc'];
+
+        $existingReview = $this->reviewRepository->findOneBy(['user_name' => $user, 'movie' => $movie]);
+        if($existingReview) {
+            return new JsonResponse("You can add only one review for one movie.");
+        }
+
+        $review = new Review();
+        $review->setUserName($user);
+        $review->setMovie($movie);
+        $review->setDescription($context);
+        $review->setAddDate(new \DateTime());
+
+        $this->reviewRepository->save($review, true);
+
+        return new JsonResponse("Review created");
     }
 
     #[Route('/movieInfo/{uuid}', methods: ['DELETE'])]
@@ -24,7 +63,7 @@ class ReviewController extends AbstractController
     {
 
         $data = [
-            'route' => 'deleteReview'.$uuid
+            'route' => 'deleteReview' . $uuid
         ];
         return new JsonResponse($data);
     }
@@ -34,7 +73,7 @@ class ReviewController extends AbstractController
     {
 
         $data = [
-            'route' => 'likeReview'.$uuid
+            'route' => 'likeReview' . $uuid
         ];
         return new JsonResponse($data);
     }

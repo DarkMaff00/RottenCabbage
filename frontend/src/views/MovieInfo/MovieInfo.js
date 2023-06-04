@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import style from './MovieInfo.module.css';
 import Page from '../../components/Page/Page';
 import Button from "../../components/Button/Button";
@@ -22,6 +22,7 @@ import {useCookies} from "react-cookie";
 function MovieInfo() {
 
     const navigate = useNavigate();
+    const descRef = useRef(null);
     const {id} = useParams();
     const [movieInfo, setMovieInfo] = useState([]);
     const [cookie] = useCookies(['jwt']);
@@ -30,6 +31,7 @@ function MovieInfo() {
     const [logged, setLogged] = useState(false);
     const [userRate, setUserRate] = useState(0);
     const [movieRate, setMovieRate] = useState(0);
+    const [message, setMessage] = useState('');
 
     const fetchData = async () => {
         return await axios.get(`${API_BASE_URL}movieInfo/${id}`);
@@ -41,6 +43,23 @@ function MovieInfo() {
                 Authorization: `Bearer ${cookie.jwt}`,
             }
         });
+    };
+
+    const addReview = async (e) => {
+        e.preventDefault();
+
+        const response = await axios.post(
+            `${API_BASE_URL}addReview/${id}`,
+            {
+                desc: descRef.current.value,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${cookie.jwt}`,
+                },
+            }
+        );
+        setMessage(response.data);
     };
 
     const getRating = async () => {
@@ -154,11 +173,11 @@ function MovieInfo() {
 
         const yellowStars = rating;
 
-        useEffect(() => {
-            if (rating !== -1) {
-                getRating();
-            }
-        }, [rating]);
+
+        if (rating !== 0) {
+            getRating();
+        }
+
 
         return (
             <>
@@ -238,9 +257,19 @@ function MovieInfo() {
                     </div>
                 </div>
             </div>
-            <FormBox>
-                <Input title="Add Review"/>
-            </FormBox>
+            {logged &&
+                <FormBox onSubmit={addReview}>
+                    <Input
+                        title="Add review"
+                        type="text"
+                        required={true}
+                        maxlength={200}
+                        ref={descRef}
+                    />
+                    <p>{message}</p>
+                    <Button title="ADD" type="submit"></Button>
+                </FormBox>
+            }
             <FormBox>
                 <Review/>
                 <Review/>
