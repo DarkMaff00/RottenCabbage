@@ -12,6 +12,8 @@ use App\Repository\ReviewRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,7 +22,6 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Security\AccessTokenHandler;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
-use function Webmozart\Assert\Tests\StaticAnalysis\contains;
 
 
 class UserController extends AbstractController
@@ -454,4 +455,70 @@ class UserController extends AbstractController
         return new JsonResponse("Like review");
 
     }
+
+    /**
+     * @throws GuzzleException
+     * @throws NonUniqueResultException
+     */
+    #[Route('/getSpecials/{uuid}', methods: ['GET'])]
+    public function returnSpecials(string $uuid): JsonResponse
+    {
+        $user = $this->userRepository->findOneById($uuid);
+        $rates = $user->getRates();
+
+        $ratings = array_map(function ($rate) {
+            $movie = $rate->getMovie()->getId();
+            return [
+                "data" => $this->getMovieInfo($movie),
+                "rate" => $rate->getRate()
+            ];
+        }, $rates->getValues());
+
+        $specials = $user->getSpecials();
+        $favourites = [];
+        $wantToSee = [];
+        foreach ($specials as $spec) {
+            $movie = $spec->getMovie()->getId();
+            $movieInfo = $this->getMovieInfo($movie);
+            if ($spec->isIsFavourite()) {
+                $favourites[] = ["data" => $movieInfo];
+            } else {
+                $wantToSee[] = ["data" => $movieInfo];
+            }
+        }
+
+        usort($ratings, function ($a, $b) {
+            return $b["rate"] - $a["rate"];
+        });
+
+        $data = [$ratings, $favourites, $wantToSee];
+
+        return new JsonResponse($data);
+    }
+
+    /**
+     * @throws GuzzleException
+     */
+    public function getMovieInfo(int $id): array
+    {
+        $client = new Client([
+            'verify' => false
+        ]);
+        $token = $_ENV['API_TOKEN'];
+        $response = $client->request('GET', 'https://api.themoviedb.org/3/movie/' . $id,
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token
+                ]
+            ]);
+        $body = $response->getBody()->getContents();
+        $desc = json_decode($body, true);
+
+        return [
+            'id' => $id,
+            'title' => $desc['title'],
+            'poster' => 'https://image.tmdb.org/t/p/original' . $desc['poster_path']
+        ];
+    }
+
 }

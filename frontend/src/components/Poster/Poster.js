@@ -1,13 +1,13 @@
 import style from './Poster.module.css';
 import React from "react";
-import poster from '../../images/poster.png';
 
 
-const Poster = props => {
+function Poster(props) {
     return (
         <div className={style.posterBlock}>
-            <img className={style.poster} src={poster} alt="poster"/>
-            <p className={style.title}>Iron Man</p>
+            <img className={style.poster} src={props.poster} alt="poster"/>
+            <p className={style.title}>{props.title}</p>
+            {props.rate && <p className={style.grade}>{props.rate}</p>}
         </div>
     );
 }

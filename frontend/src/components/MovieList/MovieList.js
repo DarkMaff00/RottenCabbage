@@ -1,10 +1,9 @@
 import style from './MovieList.module.css';
 import React from "react";
 import Poster from "../Poster/Poster";
-import Button from "../Button/Button";
 
 
-const MovieList = props => {
+function MovieList(props) {
     return (
         <div className={style.movieBlock}>
             <div className={style.title}>
@@ -12,12 +11,16 @@ const MovieList = props => {
                 <hr className={style.titleLine}/>
             </div>
             <div className={style.movies}>
-                <Poster/>
-                <Poster/>
-                <Poster/>
-                <Poster/>
+                {props.data.map((movie) => (
+                    <Poster
+                        key={movie.data.id}
+                        id={movie.data.id}
+                        title={movie.data.title}
+                        poster={movie.data.poster}
+                        rate={movie.rate}
+                    />
+                ))}
             </div>
-            <Button title="SEE ALL" width="30%"/>
         </div>
     );
 }

@@ -20,13 +20,28 @@ function Profile() {
     const [heartIcon, setHeartIcon] = useState(follow);
     const [enableFollow, setEnableFollow] = useState(true);
     const [alreadyFollowed, setAlreadyFollowed] = useState(false);
+    const [ratings, setRatings] = useState([]);
+    const [favourites, setFavourites] = useState([]);
+    const [wts, setWts] = useState([]);
     const [cookie] = useCookies(['jwt']);
     const {id} = useParams();
+    const lgthRates = ratings.length;
+    const lgthFav = favourites.length;
+    const lgthWts = wts.length;
+
+    const getSpecials = async () => {
+        const response = await axios.get(`${API_BASE_URL}getSpecials/${id}`);
+        setRatings(response.data[0]);
+        setFavourites(response.data[1]);
+        setWts(response.data[2]);
+    };
 
     useEffect(() => {
         if (!cookie.jwt) {
             navigate('/');
+            return;
         }
+        getSpecials();
     }, [cookie.jwt, navigate]);
 
 
@@ -95,19 +110,14 @@ function Profile() {
                     <p className={style.email}>{email}</p>
                     {enableFollow && <img onClick={followSubmit} className={style.follow} src={heartIcon} alt="heart"/>}
                 </div>
-                <div className={style.rankingType}>
-                    <p>Movies</p>
-                    <p>Series</p>
-                </div>
-                <hr className={style.line}/>
                 <div className={style.counted}>
-                    Rates: <div className={style.number}>21</div>
-                    Want to See: <div className={style.number}>21</div>
-                    Favourite: <div className={style.number}>21</div>
+                    Rated: <div className={style.number}>{lgthRates}</div>
+                    Want to See: <div className={style.number}>{lgthWts}</div>
+                    Favourite: <div className={style.number}>{lgthFav}</div>
                 </div>
-                <MovieList title="Your Best Rated Movies"/>
-                <MovieList title="Movies You Want to See"/>
-                <MovieList title="Your Favourite Movies"/>
+                <MovieList title="Your Best Rated Movies" data={ratings}/>
+                <MovieList title="Movies You Want to See" data={wts}/>
+                <MovieList title="Your Favourite Movies" data={favourites}/>
             </div>
         </Page>
     );
