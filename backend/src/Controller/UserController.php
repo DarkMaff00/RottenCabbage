@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Repository\FavouriteRepository;
 use App\Repository\MovieRepository;
 use App\Repository\RateRepository;
+use App\Repository\ReviewRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Exception;
@@ -32,18 +33,21 @@ class UserController extends AbstractController
 
     private FavouriteRepository $favouriteRepository;
     private UserPasswordHasherInterface $passwordHashed;
+    private ReviewRepository $reviewRepository;
 
     public function __construct(UserRepository              $userRepository,
                                 UserPasswordHasherInterface $passwordHashed,
                                 MovieRepository             $movieRepository,
                                 FavouriteRepository         $favouriteRepository,
-                                RateRepository              $rateRepository)
+                                RateRepository              $rateRepository,
+                                ReviewRepository            $reviewRepository)
     {
         $this->userRepository = $userRepository;
         $this->passwordHashed = $passwordHashed;
         $this->movieRepository = $movieRepository;
         $this->favouriteRepository = $favouriteRepository;
         $this->rateRepository = $rateRepository;
+        $this->reviewRepository = $reviewRepository;
     }
 
     /**
@@ -378,5 +382,62 @@ class UserController extends AbstractController
         $movie->updateRating($rating);
         $this->movieRepository->save($movie, true);
         return new JsonResponse(["message" => "Added rate to database"]);
+    }
+
+    /**
+     * @throws JWTDecodeFailureException
+     * @throws NonUniqueResultException
+     */
+    #[Route('/checkLike/{id}', methods: ['GET'])]
+    public function checkLikes(string $id, AccessTokenHandler $accessTokenHandler, Request $request): JsonResponse
+    {
+        try {
+            $user = $accessTokenHandler->getUserBadgeFrom($request);
+        } catch (BadCredentialsException $e) {
+            return new JsonResponse(["message" => $e], 400);
+        }
+
+        $review = $this->reviewRepository->findOneById($id);
+
+        $alreadyLiked = $user->getLikeReview()->getValues();
+        foreach ($alreadyLiked as $like) {
+            if ($review->getId() == $like->getId()) {
+                return new JsonResponse(true);
+            }
+        }
+        return new JsonResponse(false);
+    }
+
+
+    /**
+     * @throws JWTDecodeFailureException
+     * @throws NonUniqueResultException
+     */
+    #[Route('/likeReview/{id}', methods: ['POST'])]
+    public function likeReview(string $id, AccessTokenHandler $accessTokenHandler, Request $request): JsonResponse
+    {
+        try {
+            $user = $accessTokenHandler->getUserBadgeFrom($request);
+        } catch (BadCredentialsException $e) {
+            return new JsonResponse(["message" => $e], 400);
+        }
+
+        $review = $this->reviewRepository->findOneById($id);
+
+        $alreadyLiked = $user->getLikeReview()->getValues();
+        foreach ($alreadyLiked as $like) {
+            if ($review->getId() == $like->getId()) {
+                $this->userRepository->removeReview($user, $like);
+                $review->setNumOfLikes($review->getNumOfLikes() - 1);
+                $this->reviewRepository->save($review, true);
+                return new JsonResponse("Unlike review");
+            }
+        }
+        $this->userRepository->likeReview($user, $review);
+        $review->setNumOfLikes($review->getNumOfLikes() + 1);
+        $this->reviewRepository->save($review, true);
+
+        return new JsonResponse("Like review");
+
     }
 }

@@ -58,3 +58,7 @@
 .like > img {
     height: 1.2em;
 }
+
+.like > img:hover {
+    cursor: pointer;
+}

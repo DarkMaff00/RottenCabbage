@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Review;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
@@ -51,6 +52,20 @@ class UserRepository extends ServiceEntityRepository
     {
         $follower->removeFollowing($following);
         $this->getEntityManager()->persist($follower);
+        $this->getEntityManager()->flush();
+    }
+
+    public function likeReview(User $user, Review $review): void
+    {
+        $user->addLikeReview($review);
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
+    }
+
+    public function removeReview(User $user, Review $review): void
+    {
+        $user->removeLikeReview($review);
+        $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
     }
 

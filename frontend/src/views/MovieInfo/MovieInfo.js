@@ -283,6 +283,7 @@ function MovieInfo() {
                 {reviews.map((review) => (
                     <Review
                         key={review.id}
+                        id={review.id}
                         email={review.email}
                         context={review.context}
                         likes={review.likes}

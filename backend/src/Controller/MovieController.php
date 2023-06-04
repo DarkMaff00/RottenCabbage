@@ -281,6 +281,7 @@ class MovieController extends AbstractController
     {
         $movie = $this->movieRepository->findOneById($movieId);
         $data = $movie->getReviews();
+
         $reviews = [];
         foreach ($data as $rev) {
             $reviews[] = [
@@ -291,6 +292,9 @@ class MovieController extends AbstractController
                 'likes' => $rev->getNumOfLikes()
             ];
         }
+        usort($reviews, function ($a, $b) {
+            return $b['likes'] <=> $a['likes'];
+        });
 
         return new JsonResponse($reviews);
     }

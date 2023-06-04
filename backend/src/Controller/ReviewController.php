@@ -43,7 +43,7 @@ class ReviewController extends AbstractController
         $context = $requestData['desc'];
 
         $existingReview = $this->reviewRepository->findOneBy(['user_name' => $user, 'movie' => $movie]);
-        if($existingReview) {
+        if ($existingReview) {
             return new JsonResponse("You can add only one review for one movie.");
         }
 
@@ -64,16 +64,6 @@ class ReviewController extends AbstractController
 
         $data = [
             'route' => 'deleteReview' . $uuid
-        ];
-        return new JsonResponse($data);
-    }
-
-    #[Route('/movieInfo/{uuid}', methods: ['POST'])]
-    public function likeReview(string $uuid): JsonResponse
-    {
-
-        $data = [
-            'route' => 'likeReview' . $uuid
         ];
         return new JsonResponse($data);
     }
