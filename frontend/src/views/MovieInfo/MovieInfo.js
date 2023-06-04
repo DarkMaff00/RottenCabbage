@@ -3,7 +3,8 @@ import style from './MovieInfo.module.css';
 import Page from '../../components/Page/Page';
 import Button from "../../components/Button/Button";
 import cabbage from "../../images/logo.svg";
-import star from "../../images/star.png";
+import star from "../../images/star.svg";
+import greyStar from "../../images/greyStar.svg";
 import avatar from "../../images/avatar.png";
 import follow from "../../images/follow.svg";
 import followFilled from "../../images/followFilled.svg";
@@ -26,6 +27,9 @@ function MovieInfo() {
     const [cookie] = useCookies(['jwt']);
     const [fav, setFav] = useState(false);
     const [wts, setWts] = useState(false);
+    const [logged, setLogged] = useState(false);
+    const [userRate, setUserRate] = useState(0);
+    const [movieRate, setMovieRate] = useState(0);
 
     const fetchData = async () => {
         return await axios.get(`${API_BASE_URL}movieInfo/${id}`);
@@ -39,6 +43,10 @@ function MovieInfo() {
         });
     };
 
+    const getRating = async () => {
+        const response = await axios.get(`${API_BASE_URL}getRate/${id}`);
+        setMovieRate(response.data);
+    };
     const handleSubmit = async (value) => {
         return await axios.post(`${API_BASE_URL}addFavourite/${id}`,
             {
@@ -51,27 +59,51 @@ function MovieInfo() {
             });
     };
 
+    const addRate = async (value) => {
+        if (!logged) {
+            navigate('/login');
+            return;
+        }
+        setUserRate(value);
+        return await axios.post(`${API_BASE_URL}rateMovie/${id}`,
+            {
+                'rate': value,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${cookie.jwt}`,
+                }
+            });
+    };
+
 
     useEffect(() => {
+        if (cookie.jwt) {
+            setLogged(true);
+            checkState().then(r => {
+                if (r.status === 200) return r.data;
+            })
+                .then((data) => {
+                    if (data.favourite) {
+                        setFav(true);
+                    }
+                    if (data.wantToSee) {
+                        setWts(true);
+                    }
+                    if (data.rate !== 0) {
+                        setUserRate(data.rate);
+                    }
+                })
+        }
         fetchData().then(r => {
             if (r.status === 200) return r.data;
         })
             .then((data) => {
                 setMovieInfo(data);
+                setMovieRate(data.rate);
             }).catch(() => {
             navigate('/');
         })
-        checkState().then(r => {
-            if (r.status === 200) return r.data;
-        })
-            .then((data) => {
-                if (data.favourite) {
-                    setFav(true);
-                }
-                if (data.wantToSee) {
-                    setWts(true);
-                }
-            })
     }, []);
 
     const showTrailer = () => {
@@ -79,7 +111,7 @@ function MovieInfo() {
     };
 
     const addFavourite = () => {
-        if (!cookie.jwt) {
+        if (!logged) {
             navigate('/login');
         } else {
             handleSubmit(true).then(r => {
@@ -92,7 +124,7 @@ function MovieInfo() {
     }
 
     const addWantToWatch = () => {
-        if (!cookie.jwt) {
+        if (!logged) {
             navigate('/login');
         } else {
             handleSubmit(false).then(r => {
@@ -103,6 +135,64 @@ function MovieInfo() {
                 })
         }
     }
+
+    const useRenderStars = () => {
+        const rating = parseFloat(userRate);
+        const [hoveredStar, setHoveredStar] = useState(rating - 1);
+
+        useEffect(() => {
+            setHoveredStar(rating - 1);
+        }, [rating]);
+
+        const handleStarHover = (index) => {
+            setHoveredStar(index);
+        };
+
+        const handleStarLeave = () => {
+            setHoveredStar(rating - 1);
+        };
+
+        const yellowStars = rating;
+
+        useEffect(() => {
+            if (rating !== -1) {
+                getRating();
+            }
+        }, [rating]);
+
+        return (
+            <>
+                {Array.from({length: yellowStars}, (_, index) => (
+                    <img
+                        key={index}
+                        className={style.smallIcon}
+                        src={index <= hoveredStar ? star : greyStar}
+                        alt="star"
+                        onMouseEnter={() => handleStarHover(index)}
+                        onMouseLeave={handleStarLeave}
+                        onClick={() => {
+                            addRate(index + 1);
+                            getRating()
+                        }}
+                    />
+                ))}
+                {Array.from({length: 10 - yellowStars}, (_, index) => (
+                    <img
+                        key={index + yellowStars}
+                        className={style.smallIcon}
+                        src={index + yellowStars <= hoveredStar ? star : greyStar}
+                        alt="star"
+                        onMouseEnter={() => handleStarHover(index + yellowStars)}
+                        onMouseLeave={handleStarLeave}
+                        onClick={() => {
+                            addRate(index + yellowStars + 1);
+                            getRating()
+                        }}
+                    />
+                ))}
+            </>
+        );
+    };
 
 
     return (
@@ -128,25 +218,18 @@ function MovieInfo() {
                         </div>
                         <div className={style.pair}>
                             <img className={style.icon} src={star} alt="star"/>
-                            <p className={style.number}>{movieInfo?.rate?.toFixed(2)}</p>
+                            <p className={style.number}>{movieRate.toFixed(2)}</p>
                         </div>
-                        <div className={style.pair}>
-                            <img className={style.icon} src={avatar} alt="avatar"/>
-                            <p className={style.number}>10</p>
-                        </div>
+                        {logged &&
+                            <div className={style.pair}>
+                                <img className={style.icon} src={avatar} alt="avatar"/>
+                                <p className={style.number}>{userRate === 0 ? '-' : userRate}</p>
+                            </div>
+                        }
                     </div>
                     <div className={style.extras}>
                         <div>
-                            <img className={style.smallIcon} src={star} alt="star"/>
-                            <img className={style.smallIcon} src={star} alt="star"/>
-                            <img className={style.smallIcon} src={star} alt="star"/>
-                            <img className={style.smallIcon} src={star} alt="star"/>
-                            <img className={style.smallIcon} src={star} alt="star"/>
-                            <img className={style.smallIcon} src={star} alt="star"/>
-                            <img className={style.smallIcon} src={star} alt="star"/>
-                            <img className={style.smallIcon} src={star} alt="star"/>
-                            <img className={style.smallIcon} src={star} alt="star"/>
-                            <img className={style.smallIcon} src={star} alt="star"/>
+                            <div>{useRenderStars()}</div>
                         </div>
                         <img className={style.smallIcon} src={fav ? (followFilled) : (follow)}
                              onClick={addFavourite} alt="heart"/>

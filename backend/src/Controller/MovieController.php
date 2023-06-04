@@ -124,7 +124,7 @@ class MovieController extends AbstractController
             }
         }
 
-        usort($premiers, function($a, $b) {
+        usort($premiers, function ($a, $b) {
             return strtotime($a['release']) - strtotime($b['release']);
         });
 
@@ -261,25 +261,15 @@ class MovieController extends AbstractController
         return new JsonResponse($data);
     }
 
-
-    #[
-        Route('/movieInfo/{uuid}', methods: ['POST'])]
-    public function rateMovie(Request $request, string $uuid): JsonResponse
+    /**
+     * @throws NonUniqueResultException
+     */
+    #[Route('/getRate/{uuid}', methods: ['GET'])]
+    public function getRate(string $uuid): JsonResponse
     {
+        $movie = $this->movieRepository->findOneById($uuid);
+        $data = $movie->getRate();
 
-        $data = [
-            'route' => 'rateMovie' . $uuid
-        ];
-        return new JsonResponse($data);
-    }
-
-    #[Route('/movieInfo/{uuid}', methods: ['POST'])]
-    public function wantSeeMovie(string $uuid): JsonResponse
-    {
-
-        $data = [
-            'route' => 'wantSeeMovie' . $uuid
-        ];
         return new JsonResponse($data);
     }
 }

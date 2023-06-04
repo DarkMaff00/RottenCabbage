@@ -65,7 +65,7 @@ a, p {
     gap: 1em;
     display: flex;
     align-items: center;
-    justify-content: end;
+    justify-content: flex-end;
 }
 
 .userDiv img:first-child {

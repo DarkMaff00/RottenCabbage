@@ -56,7 +56,7 @@ class Movie
         return $this->rate;
     }
 
-    public function setRate(int $rate): self
+    public function setRate(float $rate): self
     {
         $this->rate = $rate;
 
@@ -174,6 +174,17 @@ class Movie
             }
         }
 
+        return $this;
+    }
+
+    public function updateRating(float $rate, bool $isNew = true, float $oldRate = 0.0): self
+    {
+        $totalRating = $this->getRate() * $this->getNumOfRatings();
+        if ($isNew) {
+            $this->setNumOfRatings($this->getNumOfRatings() + 1);
+        }
+        $newRating = ($totalRating + $rate - $oldRate) / $this->getNumOfRatings();
+        $this->setRate($newRating);
         return $this;
     }
 }

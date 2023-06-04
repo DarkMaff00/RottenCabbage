@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Favourite;
+use App\Entity\Rate;
 use App\Entity\User;
 use App\Repository\FavouriteRepository;
 use App\Repository\MovieRepository;
+use App\Repository\RateRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Exception;
@@ -26,18 +28,22 @@ class UserController extends AbstractController
     private UserRepository $userRepository;
     private MovieRepository $movieRepository;
 
+    private RateRepository $rateRepository;
+
     private FavouriteRepository $favouriteRepository;
     private UserPasswordHasherInterface $passwordHashed;
 
     public function __construct(UserRepository              $userRepository,
                                 UserPasswordHasherInterface $passwordHashed,
                                 MovieRepository             $movieRepository,
-                                FavouriteRepository         $favouriteRepository)
+                                FavouriteRepository         $favouriteRepository,
+                                RateRepository              $rateRepository)
     {
         $this->userRepository = $userRepository;
         $this->passwordHashed = $passwordHashed;
         $this->movieRepository = $movieRepository;
         $this->favouriteRepository = $favouriteRepository;
+        $this->rateRepository = $rateRepository;
     }
 
     /**
@@ -318,13 +324,59 @@ class UserController extends AbstractController
             }
         }
 
+        $rating = 0;
+        $existingRate = $this->rateRepository->findOneBy(['user_name' => $user, 'movie' => $movie]);
+        if ($existingRate) {
+            $rating = $existingRate->getRate();
+        }
+
         $data = [
             'favourite' => $isFavourite,
             'wantToSee' => $wantToSee,
+            'rate' => $rating
         ];
 
         return new JsonResponse($data);
     }
 
+    /**
+     * @throws JWTDecodeFailureException
+     * @throws NonUniqueResultException
+     */
+    #[Route('/rateMovie/{movieId}', methods: ['POST'])]
+    public function rateMovie(Request $request, string $movieId, AccessTokenHandler $accessTokenHandler): JsonResponse
+    {
+        try {
+            $user = $accessTokenHandler->getUserBadgeFrom($request);
+        } catch (BadCredentialsException $e) {
+            return new JsonResponse(["message" => $e], 400);
+        }
 
+        $data = json_decode($request->getContent(), true);
+        $rating = $data['rate'];
+
+        $movie = $this->movieRepository->findOneById($movieId);
+
+        $existingRate = $this->rateRepository->findOneBy(['user_name' => $user, 'movie' => $movie]);
+
+        if ($existingRate) {
+            $oldRating = $existingRate->getRate();
+            $existingRate->setRate($rating);
+            $this->rateRepository->save($existingRate, true);
+            $movie->updateRating($rating, false, $oldRating);
+            $this->movieRepository->save($movie, true);
+            return new JsonResponse(["message" => "Rating updated"]);
+        }
+
+        $rate = new Rate();
+        $rate->setMovie($movie);
+        $rate->setUserName($user);
+        $rate->setRate($rating);
+
+        $user->addRate($rate);
+        $this->rateRepository->save($rate, true);
+        $movie->updateRating($rating);
+        $this->movieRepository->save($movie, true);
+        return new JsonResponse(["message" => "Added rate to database"]);
+    }
 }
