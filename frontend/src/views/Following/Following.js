@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import UserTab from "../../components/UserTab/UserTab";
 import style from './Following.module.css';
 import Page from '../../components/Page/Page';
@@ -7,15 +7,36 @@ import FormBox from "../../components/FormBox/FormBox";
 import Input from "../../components/Input/Input";
 import axios from "axios";
 import {API_BASE_URL} from "../../index";
+import {useCookies} from "react-cookie";
 
 
 function Following() {
 
     const [users, setUsers] = useState([]);
+    const [cookie] = useCookies(['jwt']);
+    const [following, setFollowing] = useState([]);
 
     const handleSubmit = async (value) => {
         return await axios.get(`${API_BASE_URL}users`, {params: {search: value}});
     }
+
+    const fetchFollowing = async () => {
+        return await axios.get(`${API_BASE_URL}following`, {
+            headers: {
+                Authorization: `Bearer ${cookie.jwt}`,
+            }
+        });
+    }
+
+    useEffect(() => {
+        fetchFollowing().then(r => {
+            if (r.status === 200) return r.data;
+        })
+            .then((data) => {
+                setFollowing(data);
+            })
+        console.log(following);
+    }, []);
 
 
     const searchUsers = (value) => {
@@ -35,10 +56,15 @@ function Following() {
         <Page subpage="following">
             <div className={style.followingDiv}>
                 <div className={style.followingInfo}>
-                    <FollowingTab/>
-                    <FollowingTab/>
-                    <FollowingTab/>
-                    <FollowingTab/>
+                    {following.map((follow) => (
+                        <FollowingTab
+                            key={follow.email}
+                            id={follow.id}
+                            name={follow.name}
+                            lastName={follow.surname}
+                            email={follow.email}
+                        />
+                    ))}
                 </div>
                 <div className={style.searchUser}>
                     <FormBox width="80%">
@@ -51,7 +77,7 @@ function Following() {
                         <hr style={{width: '80%'}}/>
                         {
                             users.map((user) => (
-                                <UserTab key={user.email} user={user} />
+                                <UserTab key={user.email} user={user}/>
                             ))
                         }
                     </FormBox>

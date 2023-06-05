@@ -23,7 +23,7 @@ function NavBar() {
     const isLoginPage = location.pathname.endsWith('/login');
 
     const handleLogout = () => {
-        removeCookie('jwt',{path:'/'});
+        removeCookie('jwt', {path: '/'});
         navigate('/');
     };
 
@@ -55,9 +55,11 @@ function NavBar() {
                     <Link to='/ranking'>
                         <p className={isRankingPage ? style.whiteText : ''}>Rankings</p>
                     </Link>
-                    <Link to='/following'>
-                        <p className={isFollowingPage ? style.whiteText : ''}>Following</p>
-                    </Link>
+                    {cookie.jwt &&
+                        <Link to='/following'>
+                            <p className={isFollowingPage ? style.whiteText : ''}>Following</p>
+                        </Link>
+                    }
                     <Link to='/premiers'>
                         <p className={isPremiersPage ? style.whiteText : ''}>Premiers</p>
                     </Link>

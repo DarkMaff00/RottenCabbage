@@ -1,34 +1,34 @@
 .followingTab {
-    width: 100%;
+    width: 80%;
     margin: 2em;
+    cursor: pointer;
 }
 
 .userGrade {
+    background-image: linear-gradient(92.88deg, #455EB5 9.16%, #5643CC 43.89%, #673FD7 64.72%);
+    border-radius: 8px;
+    border-style: none;
+    box-sizing: border-box;
+    color: #FFFFFF;
+    cursor: pointer;
+    flex-shrink: 0;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 1em 1.6rem;
+    text-align: center;
+    text-shadow: rgba(0, 0, 0, 0.25) 0 3px 8px;
+    transition: all .5s;
     display: flex;
     flex-direction: column;
-    padding: 1em;
-}
-
-.user {
-    display: flex;
-    gap: 1em;
-}
-
-.grade {
-    display: flex;
-    color: #7C7F9D;
+    justify-content: center;
     align-items: center;
-    gap: 1em;
 }
 
-.number {
-    font-size: 2.5em;
-    font-weight: bold;
+.name {
     color: white;
-    text-align: center;
-    margin: 0;
+    font-size: 1.5em;
 }
 
-.star {
-    height: 2em;
+.userGrade > p {
+    color: white;
 }

@@ -103,14 +103,31 @@ class UserController extends AbstractController
 
     }
 
-
-    //Use Case: Filtrowanie Ile ocen sie ma wyswietlac- po jakims czasie najlepsze filmy
+    /**
+     * @throws JWTDecodeFailureException
+     * @throws NonUniqueResultException
+     */
     #[Route('/following', methods: ['GET'])]
-    public function getFollowingUsers(): JsonResponse
+    public function getFollowingUsers(Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
     {
-        $data = [
-            'route' => 'followingUsers'
-        ];
+        try {
+            $user = $accessTokenHandler->getUserBadgeFrom($request);
+        } catch (BadCredentialsException $e) {
+            return new JsonResponse(["message" => $e], 400);
+        }
+
+        $data = [];
+        $following = $user->getFollowing();
+        foreach ($following as $follow) {
+            $user = $this->userRepository->findOneById($follow);
+            $data[] = [
+                'id' => $follow,
+                'email' => $user->getEmail(),
+                'name' => $user->getFirstName(),
+                'surname' => $user->getLastName()
+            ];
+        }
+
         return new JsonResponse($data);
     }
 
