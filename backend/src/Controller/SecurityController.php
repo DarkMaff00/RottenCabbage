@@ -18,10 +18,11 @@ class SecurityController extends AbstractController
 
     private UserPasswordHasherInterface $passwordHashed;
     private JWTTokenManagerInterface $jwtManager;
-
     private UserRepository $userRepository;
 
-    public function __construct(UserPasswordHasherInterface $passwordHashed, JWTTokenManagerInterface $jwtManager, UserRepository $userRepository)
+    public function __construct(UserPasswordHasherInterface $passwordHashed,
+                                JWTTokenManagerInterface    $jwtManager,
+                                UserRepository              $userRepository)
     {
         $this->passwordHashed = $passwordHashed;
         $this->jwtManager = $jwtManager;
@@ -41,16 +42,14 @@ class SecurityController extends AbstractController
 
         $user = $this->userRepository->findOneByEmail($email);
 
-        if (!$user || !$this->passwordHashed->isPasswordValid($user, $password)) {
-            return new JsonResponse(['message' => 'Invalid credentials.'], 401);
+        if (!$user) {
+            return new JsonResponse(['message' => 'No such user exists.'], 401);
+        } else if (!$this->passwordHashed->isPasswordValid($user, $password)) {
+            return new JsonResponse(['message' => 'Wrong password.'], 401);
         }
 
-        $userData = [
-            "firstName" => $user->getFirstName(),
-            "lastName" => $user->getLastName(),
-        ];
 
-        $token = $this->jwtManager->create($user, $userData);
+        $token = $this->jwtManager->create($user);
 
         return new JsonResponse(['token' => $token]);
     }

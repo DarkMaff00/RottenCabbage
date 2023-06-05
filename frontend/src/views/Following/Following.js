@@ -8,6 +8,7 @@ import Input from "../../components/Input/Input";
 import axios from "axios";
 import {API_BASE_URL} from "../../index";
 import {useCookies} from "react-cookie";
+import Loading from "../../components/Loading/loading";
 
 
 function Following() {
@@ -15,6 +16,7 @@ function Following() {
     const [users, setUsers] = useState([]);
     const [cookie] = useCookies(['jwt']);
     const [following, setFollowing] = useState([]);
+    const [dataLoaded, setDataLoaded] = useState(false);
 
     const handleSubmit = async (value) => {
         return await axios.get(`${API_BASE_URL}users`, {params: {search: value}});
@@ -34,8 +36,8 @@ function Following() {
         })
             .then((data) => {
                 setFollowing(data);
+                setDataLoaded(true);
             })
-        console.log(following);
     }, []);
 
 
@@ -54,35 +56,39 @@ function Following() {
 
     return (
         <Page subpage="following">
-            <div className={style.followingDiv}>
-                <div className={style.followingInfo}>
-                    {following.map((follow) => (
-                        <FollowingTab
-                            key={follow.email}
-                            id={follow.id}
-                            name={follow.name}
-                            lastName={follow.surname}
-                            email={follow.email}
-                        />
-                    ))}
+            {dataLoaded ? (
+                <div className={style.followingDiv}>
+                    <div className={style.followingInfo}>
+                        {following.map((follow) => (
+                            <FollowingTab
+                                key={follow.email}
+                                id={follow.id}
+                                name={follow.name}
+                                lastName={follow.surname}
+                                email={follow.email}
+                            />
+                        ))}
+                    </div>
+                    <div className={style.searchUser}>
+                        <FormBox width="80%">
+                            <h2 className={style.title}>Search users</h2>
+                            <Input
+                                type="text"
+                                placeholder="search..."
+                                onChange={searchUsers}
+                            />
+                            <hr style={{width: '80%'}}/>
+                            {
+                                users.map((user) => (
+                                    <UserTab key={user.email} user={user}/>
+                                ))
+                            }
+                        </FormBox>
+                    </div>
                 </div>
-                <div className={style.searchUser}>
-                    <FormBox width="80%">
-                        <h2 className={style.title}>Search users</h2>
-                        <Input
-                            type="text"
-                            placeholder="search..."
-                            onChange={searchUsers}
-                        />
-                        <hr style={{width: '80%'}}/>
-                        {
-                            users.map((user) => (
-                                <UserTab key={user.email} user={user}/>
-                            ))
-                        }
-                    </FormBox>
-                </div>
-            </div>
+            ) : (
+                <Loading/>
+            )}
         </Page>
     );
 }

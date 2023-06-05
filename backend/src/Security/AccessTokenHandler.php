@@ -35,7 +35,7 @@ class AccessTokenHandler
         $accessToken = $this->JWTEncoder->decode($token);
         $userEmail = $accessToken['username'];
         $user = $this->userRepository->findOneByEmail($userEmail);
-        if (null === $accessToken || !$user) {
+        if (!$user) {
             throw new BadCredentialsException('Invalid credentials.');
         }
 

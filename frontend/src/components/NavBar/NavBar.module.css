@@ -1,4 +1,4 @@
-.changeInput {
+.navBar {
     width: 90%;
     margin-top: 4em;
     display: flex;
@@ -74,9 +74,6 @@ a, p {
 
 .userDiv img:last-child {
     height: 1em;
-}
-
-.userDiv img:last-child:hover {
     cursor: pointer;
 }
 
@@ -92,9 +89,6 @@ a, p {
 .email {
     font-size: 0.9em;
     color: white;
-}
-
-.email:hover {
     cursor: pointer;
 }
 
@@ -116,12 +110,9 @@ a, p {
 
 .dropdownOption {
     color: white;
-}
-
-.dropdownOption:hover {
     cursor: pointer;
 }
 
-.rotated {
-    transform: rotate(180deg);
+.dropdownOption:hover {
+    text-decoration: underline;
 }

@@ -16,6 +16,7 @@ function Review(props) {
     const [cookie] = useCookies(['jwt']);
     const [liked, setLiked] = useState(false);
     const [deleteReview, setDeleteReview] = useState(false);
+    const [likes, setLikes] = useState(props.likes);
 
     const checkLike = async () => {
         const response = await axios.get(`${API_BASE_URL}checkLike/${props.id}`, {
@@ -37,6 +38,7 @@ function Review(props) {
                 Authorization: `Bearer ${cookie.jwt}`,
             }
         });
+        props.refresh();
     };
 
     const checkAccess = async () => {
@@ -80,6 +82,7 @@ function Review(props) {
         if (!cookie.jwt) {
             navigate('/login');
         } else {
+            liked ? setLikes(likes - 1) : setLikes(likes + 1);
             setLiked(!liked);
             addLike();
         }
@@ -96,7 +99,7 @@ function Review(props) {
             </div>
             <div className={style.like}>
                 <img onClick={like} src={liked ? followFilled : follow} alt="heart"/>
-                <p>{props.likes}</p>
+                <p>{likes}</p>
             </div>
             {deleteReview && <img className={style.bin} onClick={deleteRev} src={bin} alt="heart"/>}
         </div>

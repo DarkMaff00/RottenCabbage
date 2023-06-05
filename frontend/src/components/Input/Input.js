@@ -1,5 +1,5 @@
 import React, {forwardRef, useState} from 'react';
-import style from './Input.module.css';
+import styles from './Input.module.css';
 
 const Input = forwardRef((props, ref) => {
     const [error, setError] = useState('');
@@ -29,15 +29,6 @@ const Input = forwardRef((props, ref) => {
                     errorMessage: 'Invalid email format',
                 });
                 break;
-            case 'Name':
-            case 'Last Name':
-                validateInput(value, {
-                    minLength: 3,
-                    maxLength: 50,
-                    regex: /^[a-zA-Z\s]*$/,
-                    errorMessage: `Name should be between 3 and 50 characters`,
-                });
-                break;
             case 'Password':
                 validateInput(value, {
                     minLength: 8,
@@ -46,7 +37,7 @@ const Input = forwardRef((props, ref) => {
                     errorMessage:
                         'Password should be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character',
                 });
-                props.onChange(value);
+                props.onChange?.(value);
                 break;
             case 'Repeat Password':
                 const passwordValue = props.passwordValue.current.value;
@@ -65,18 +56,19 @@ const Input = forwardRef((props, ref) => {
     };
 
     return (
-        <div className={style.alignInput}>
-            <p className={style.titleInput}>{props.title}</p>
+        <div className={styles.alignInput}>
+            <p className={styles.titleInput}>{props.title}</p>
             <input
                 maxLength={props.maxlength}
                 ref={ref}
-                className={`${style.styleInput} ${error && style.errorInput}`}
+                className={`${styles.styleInput} ${error && styles.errorInput}`}
                 type={props.type}
                 placeholder={props.placeholder}
                 required={props.required}
                 onChange={handleChange}
+
             />
-            {error && <p className={style.errorText}>{error}</p>}
+            {error && <p className={styles.errorText}>{error}</p>}
         </div>
     );
 });

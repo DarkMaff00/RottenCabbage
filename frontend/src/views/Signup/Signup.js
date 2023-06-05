@@ -1,29 +1,28 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import axios from "axios";
-import style from './Signup.module.css';
+import axios from 'axios';
+import {useCookies} from 'react-cookie';
+import {API_BASE_URL} from '../../index';
 import Page from '../../components/Page/Page';
 import FormBox from '../../components/FormBox/FormBox';
 import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
-import {API_BASE_URL} from "../../index";
-import {useCookies} from "react-cookie";
+import style from './Signup.module.css';
 
 function Signup() {
-
     const navigate = useNavigate();
+
     const emailRef = useRef(null);
     const firstNameRef = useRef(null);
     const lastNameRef = useRef(null);
     const passwordRef = useRef(null);
     const repeatPasswordRef = useRef(null);
 
-    const [nameValid, setNameValid] = useState(false);
     const [emailValid, setEmailValid] = useState(false);
     const [passwordValid, setPasswordValid] = useState(false);
     const [passwordConfirmationValid, setPasswordConfirmationValid] = useState(false);
-    const [lastNameValid, setLastNameValid] = useState(false);
 
+    const [showPassword, setShowPassword] = useState(false);
     const [isFormValid, setIsFormValid] = useState(false);
     const [error, setError] = useState('');
     const [cookie] = useCookies(['jwt']);
@@ -34,6 +33,9 @@ function Signup() {
         }
     }, [cookie.jwt, navigate]);
 
+    const handleShowPassword = () => {
+        setShowPassword(!showPassword);
+    };
 
     const updatePasswordValue = (value) => {
         passwordRef.current.value = value;
@@ -58,13 +60,11 @@ function Signup() {
     };
 
     useEffect(() => {
-        setIsFormValid(nameValid && emailValid && passwordValid && passwordConfirmationValid && lastNameValid);
+        setIsFormValid(emailValid && passwordValid && passwordConfirmationValid);
     }, [
-        nameValid,
         emailValid,
         passwordValid,
         passwordConfirmationValid,
-        lastNameValid,
     ]);
 
     return (
@@ -77,37 +77,43 @@ function Signup() {
                     required={true}
                     ref={emailRef}
                     correctValue={setEmailValid}
+                    maxlength={70}
                 />
                 <Input
                     title="Name"
                     type="text"
                     required={true}
                     ref={firstNameRef}
-                    correctValue={setNameValid}
+                    maxlength={50}
                 />
                 <Input
                     title="Last Name"
                     type="text"
                     required={true}
                     ref={lastNameRef}
-                    correctValue={setLastNameValid}
+                    maxlength={50}
                 />
                 <Input
                     title="Password"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     required={true}
                     ref={passwordRef}
                     correctValue={setPasswordValid}
                     onChange={updatePasswordValue}
+                    maxlength={200}
                 />
                 <Input
                     title="Repeat Password"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     required={true}
                     ref={repeatPasswordRef}
                     passwordValue={passwordRef}
                     correctValue={setPasswordConfirmationValid}
                 />
+                <div className={style.showPassword}>
+                    <input type="checkbox" id="show" name="showPassword" onChange={handleShowPassword}/>
+                    <label htmlFor="show">Show Password</label>
+                </div>
                 <div className={style.errorText}>{error}</div>
                 <Button title="SIGN UP" width="100%" type="submit" disabled={!isFormValid}/>
             </FormBox>

@@ -23,7 +23,7 @@ function Settings() {
     }, [cookie.jwt, navigate]);
 
     const handleLogout = () => {
-        removeCookie('jwt');
+        removeCookie('jwt', {path: '/'});
         navigate('/');
     };
 

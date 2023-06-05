@@ -1,19 +1,20 @@
-import style from './NavBar.module.css';
-import React, {useState} from "react";
-import {Link, useLocation, useNavigate} from "react-router-dom";
-import logo from "../../images/logo.svg";
-import userArrow from '../../images/user-arrow.svg';
-import {useCookies} from "react-cookie";
-import jwt_decode from "jwt-decode";
-import axios from "axios";
-import {API_BASE_URL} from "../../index";
+import React, {useState} from 'react';
+import {Link, useLocation, useNavigate} from 'react-router-dom';
+import axios from 'axios';
+import {useCookies} from 'react-cookie';
+import jwt_decode from 'jwt-decode';
+import {API_BASE_URL} from '../../index';
+
+import logo from '../../images/logo.svg';
+
+import styles from './NavBar.module.css';
 
 function NavBar() {
     const location = useLocation();
     const navigate = useNavigate();
 
     const [isDropdownOpen, setDropdownOpen] = useState(false);
-    const [isArrowRotated, setArrowRotated] = useState(false);
+    const [isMouseOver, setMouseOver] = useState(false);
 
     const [cookie, setCookie, removeCookie] = useCookies(['jwt']);
     const isRankingPage = location.pathname.endsWith('/ranking');
@@ -29,68 +30,70 @@ function NavBar() {
 
     const viewProfile = async (e) => {
         e.preventDefault();
-        const response = await axios.get(`${API_BASE_URL}${jwt_decode(cookie.jwt)['username']}`);
-        const id = response.data
+        const response = await axios.get(`${API_BASE_URL}${jwt_decode(cookie.jwt).username}`);
+        const id = response.data;
         navigate('/profile/' + id);
     };
 
-    const handleDropdownToggle = () => {
-        setDropdownOpen(!isDropdownOpen);
-        setArrowRotated(!isArrowRotated);
+    const handleMouseEnter = () => {
+        setMouseOver(true);
+        setDropdownOpen(true);
+    };
+
+    const handleMouseLeave = () => {
+        setMouseOver(false);
+        setDropdownOpen(false);
     };
 
     return (
-        <div className={style.changeInput}>
-            <div className={style.tabs}>
-                <Link to='/'>
-                    <div className={style.logoDiv}>
-                        <img className={style.logoImage} src={logo} alt="log"/>
-                        <div className={style.logoText}>
+        <div className={styles.navBar}>
+            <div className={styles.tabs}>
+                <Link to="/">
+                    <div className={styles.logoDiv}>
+                        <img className={styles.logoImage} src={logo} alt="log"/>
+                        <div className={styles.logoText}>
                             <p>Rotten</p>
                             <p>Cabbage</p>
                         </div>
                     </div>
                 </Link>
-                <div className={style.menuTabs}>
-                    <Link to='/ranking'>
-                        <p className={isRankingPage ? style.whiteText : ''}>Rankings</p>
+                <div className={styles.menuTabs}>
+                    <Link to="/ranking">
+                        <p className={isRankingPage ? styles.whiteText : ''}>Rankings</p>
                     </Link>
-                    {cookie.jwt &&
-                        <Link to='/following'>
-                            <p className={isFollowingPage ? style.whiteText : ''}>Following</p>
+                    {cookie.jwt && (
+                        <Link to="/following">
+                            <p className={isFollowingPage ? styles.whiteText : ''}>Following</p>
                         </Link>
-                    }
-                    <Link to='/premiers'>
-                        <p className={isPremiersPage ? style.whiteText : ''}>Premiers</p>
+                    )}
+                    <Link to="/premiers">
+                        <p className={isPremiersPage ? styles.whiteText : ''}>Premiers</p>
                     </Link>
                 </div>
             </div>
             {isLoginPage || isSignupPage ? (
                 <Link to={isLoginPage ? '/signup' : '/login'}>
-                    <button className={style.exitButton}>{isLoginPage ? 'Signup' : 'Login'}</button>
+                    <button className={styles.exitButton}>{isLoginPage ? 'Signup' : 'Login'}</button>
                 </Link>
             ) : (
                 cookie.jwt ? (
-                    <div className={style.userDiv}>
-                        <div className={style.dropdownContainer}>
-                            <p onClick={viewProfile} className={style.email}>{jwt_decode(cookie.jwt)['username']}</p>
+                    <div className={styles.userDiv}>
+                        <div
+                            className={styles.dropdownContainer}
+                            onMouseEnter={handleMouseEnter}
+                            onMouseLeave={handleMouseLeave}>
+                            <p onClick={viewProfile} className={styles.email}>{jwt_decode(cookie.jwt).username}</p>
                             {isDropdownOpen && (
-                                <div className={`${style.dropdown}`}>
-                                    <Link to="/settings" className={style.dropdownOption}>Settings</Link>
-                                    <p className={style.dropdownOption} onClick={handleLogout}>Logout</p>
+                                <div className={styles.dropdown}>
+                                    <Link to="/settings" className={styles.dropdownOption}>Settings</Link>
+                                    <p className={styles.dropdownOption} onClick={handleLogout}>Logout</p>
                                 </div>
                             )}
                         </div>
-                        <img
-                            src={userArrow}
-                            alt="userArrow"
-                            className={`${isArrowRotated ? style.rotated : ''}`}
-                            onClick={handleDropdownToggle}
-                        />
                     </div>
                 ) : (
                     <Link to="/login">
-                        <button className={style.exitButton}>Login</button>
+                        <button className={styles.exitButton}>Login</button>
                     </Link>
                 )
             )}

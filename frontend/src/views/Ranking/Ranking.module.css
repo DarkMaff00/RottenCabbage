@@ -35,7 +35,7 @@
 .pagination {
     margin-top: 2em;
     display: flex;
-    gap:0.5em;
+    gap: 0.5em;
 }
 
 .normal, .active {

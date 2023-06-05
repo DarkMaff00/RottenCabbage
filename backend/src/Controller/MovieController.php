@@ -44,18 +44,13 @@ class MovieController extends AbstractController
                         'Authorization' => 'Bearer ' . $token
                     ]
                 ]);
-            $body = $response->getBody()->getContents();
-            $desc = json_decode($body, true);
-
-
-            $title = $desc["title"];
-            $genre = $desc['genres'][0]['name'] ?? "Movie";
+            $desc = json_decode($response->getBody()->getContents(), true);;
 
 
             $data[] = [
                 'id' => $id,
-                'title' => $title,
-                'genre' => $genre,
+                'title' => $desc["title"],
+                'genre' => $desc['genres'][0]['name'] ?? "Movie",
                 'rate' => $movie->getRate(),
                 'critic' => $desc["vote_average"],
                 'poster' => 'https://image.tmdb.org/t/p/original/' . $desc['poster_path']
@@ -87,10 +82,7 @@ class MovieController extends AbstractController
                 'Authorization' => 'Bearer ' . $token
             ]
         ]);
-
-        $body = $response->getBody()->getContents();
-        $data = json_decode($body, true)["results"];
-
+        $data = json_decode($response->getBody()->getContents(), true)["results"];
         $today = strtotime(date('Y-m-d'));
 
         foreach ($data as $movie) {
@@ -102,8 +94,7 @@ class MovieController extends AbstractController
                         'Authorization' => 'Bearer ' . $token
                     ]
                 ]);
-                $videosBody = $videosResponse->getBody()->getContents();
-                $videos = json_decode($videosBody, true);
+                $videos = json_decode($videosResponse->getBody()->getContents(), true);
 
                 $trailerKey = null;
                 foreach ($videos['results'] as $video) {

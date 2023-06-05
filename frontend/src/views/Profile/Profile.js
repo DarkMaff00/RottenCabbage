@@ -11,14 +11,10 @@ import {useNavigate, useParams} from 'react-router-dom';
 import {useCookies} from "react-cookie";
 import jwt_decode from "jwt-decode";
 
-
 function Profile() {
-
     const navigate = useNavigate();
-    const [email, setEmail] = useState('');
-    const [names, setNames] = useState('');
+    const [user, setUser] = useState(null);
     const [heartIcon, setHeartIcon] = useState(follow);
-    const [enableFollow, setEnableFollow] = useState(true);
     const [alreadyFollowed, setAlreadyFollowed] = useState(false);
     const [ratings, setRatings] = useState([]);
     const [favourites, setFavourites] = useState([]);
@@ -29,42 +25,57 @@ function Profile() {
     const lgthFav = favourites.length;
     const lgthWts = wts.length;
 
-    const getSpecials = async () => {
-        const response = await axios.get(`${API_BASE_URL}getSpecials/${id}`);
-        setRatings(response.data[0]);
-        setFavourites(response.data[1]);
-        setWts(response.data[2]);
+    const fetchUser = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}user/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${cookie.jwt}`,
+                }
+            });
+            setUser(response.data);
+            setAlreadyFollowed(response.data.follows);
+        } catch (error) {
+            console.log(error);
+            navigate('/');
+        }
+    };
+
+    const fetchSpecials = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}getSpecials/${id}`);
+            setRatings(response.data[0]);
+            setFavourites(response.data[1]);
+            setWts(response.data[2]);
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     useEffect(() => {
         if (!cookie.jwt) {
             navigate('/');
-            return;
-        }
-        getSpecials();
-    }, [cookie.jwt, navigate]);
-
-
-    const fetchData = async () => {
-        return await axios.get(`${API_BASE_URL}user/${id}`, {
-            headers: {
-                Authorization: `Bearer ${cookie.jwt}`,
-            }
-        });
-    };
-
-    const followSubmit = async (e) => {
-        e.preventDefault();
-        let mode;
-        if (alreadyFollowed) {
-            mode = "unfollow/";
         } else {
-            mode = "follow/";
+            fetchUser();
+            fetchSpecials();
         }
+    }, [cookie.jwt, id, navigate]);
 
+    useEffect(() => {
+        if (user && user.email === jwt_decode(cookie.jwt).username) {
+            setHeartIcon(followFilled);
+        } else if (alreadyFollowed) {
+            setHeartIcon(followFilled);
+        } else {
+            setHeartIcon(follow);
+        }
+    }, [user, alreadyFollowed, cookie.jwt]);
+
+    const handleFollow = async () => {
+        setAlreadyFollowed(!alreadyFollowed);
         try {
+            const mode = alreadyFollowed ? 'unfollow' : 'follow';
             await axios.post(
-                `${API_BASE_URL}${mode}${id}`,
+                `${API_BASE_URL}${mode}/${id}`,
                 {},
                 {
                     headers: {
@@ -72,44 +83,24 @@ function Profile() {
                     }
                 }
             );
-            setAlreadyFollowed(!alreadyFollowed);
         } catch (error) {
             console.log(error);
         }
     };
 
-
-    useEffect(() => {
-        fetchData().then(r => {
-            if (r.status === 200) return r.data;
-            throw r;
-        })
-            .then((data) => {
-                setEmail(data.email);
-                setNames(data.firstName + " " + data.lastName);
-                setAlreadyFollowed(data.follows);
-            })
-            .catch(() => {
-                navigate('/');
-            });
-        if (email === jwt_decode(cookie.jwt)['username']) setEnableFollow(false);
-        if (!alreadyFollowed) {
-            setHeartIcon(follow);
-        } else {
-            setHeartIcon(followFilled);
-        }
-    });
-
-
     return (
         <Page subpage="profile">
             <div className={style.profileDiv}>
-                <div className={style.user}>
-                    <img className={style.bigAvatar} src={avatar} alt="avatar"/>
-                    <p className={style.bigUsername}>{names}</p>
-                    <p className={style.email}>{email}</p>
-                    {enableFollow && <img onClick={followSubmit} className={style.follow} src={heartIcon} alt="heart"/>}
-                </div>
+                {user && (
+                    <div className={style.user}>
+                        <img className={style.bigAvatar} src={avatar} alt="avatar"/>
+                        <p className={style.bigUsername}>{user.firstName} {user.lastName}</p>
+                        <p className={style.email}>{user.email}</p>
+                        {user.email !== jwt_decode(cookie.jwt).username && (
+                            <img onClick={handleFollow} className={style.follow} src={heartIcon} alt="heart"/>
+                        )}
+                    </div>
+                )}
                 <div className={style.counted}>
                     Rated: <div className={style.number}>{lgthRates}</div>
                     Want to See: <div className={style.number}>{lgthWts}</div>

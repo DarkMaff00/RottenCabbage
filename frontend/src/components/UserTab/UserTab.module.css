@@ -3,12 +3,9 @@
     margin-bottom: 0.2em;
     border-radius: 5px;
     padding: 5px 10px;
+    cursor: pointer;
 }
 
 .names {
     color: white;
-}
-
-.userTab:hover {
-    cursor: pointer;
 }

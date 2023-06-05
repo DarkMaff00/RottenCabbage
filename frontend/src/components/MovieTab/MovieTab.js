@@ -1,7 +1,7 @@
 import style from './MovieTab.module.css';
 import React, {useEffect, useState} from "react";
 import cabbage from '../../images/logo.svg';
-import star from '../../images/star.png';
+import star from '../../images/star.svg';
 import {useNavigate} from "react-router-dom";
 
 function MovieTab(props) {

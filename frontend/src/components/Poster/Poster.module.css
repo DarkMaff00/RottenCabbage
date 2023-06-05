@@ -6,6 +6,7 @@
 
 .poster{
     height: 10em;
+    cursor: pointer;
 }
 
 .title {

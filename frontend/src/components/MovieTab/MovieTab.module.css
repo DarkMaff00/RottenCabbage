@@ -5,6 +5,7 @@
     background: #22212D;
     border-radius: 10px;
     padding-right: 2em;
+    cursor: pointer;
 }
 
 .number, .mark {
@@ -61,10 +62,6 @@
 
 .grade > img {
     height: 3em;
-}
-
-.movieTab:hover {
-    cursor: pointer;
 }
 
 .desc {

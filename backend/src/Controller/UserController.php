@@ -66,22 +66,23 @@ class UserController extends AbstractController
 
         $existingUser = $this->userRepository->findOneByEmail($email);
         if ($existingUser) {
-            return new JsonResponse(['message' => 'User already exist. Change your email.'], 409);
+            return new JsonResponse(['message' => 'User already exists. Change your email.'], 409);
         }
 
         $user = new User();
         $hashedPassword = $this->passwordHashed->hashPassword($user, $password);
 
-        $user->setEmail($email);
-        $user->setPassword($hashedPassword);
-        $user->setFirstName($firstName);
-        $user->setLastName($lastName);
+        $user
+            ->setEmail($email)
+            ->setPassword($hashedPassword)
+            ->setFirstName($firstName)
+            ->setLastName($lastName);
 
         $this->userRepository->save($user, true);
 
         return new JsonResponse(['message' => 'User successfully added'], 200);
-
     }
+
 
     #[Route('/users', methods: ['GET'])]
     public function getUsers(Request $request): JsonResponse
@@ -100,7 +101,6 @@ class UserController extends AbstractController
         }
 
         return new JsonResponse($response);
-
     }
 
     /**
@@ -224,9 +224,6 @@ class UserController extends AbstractController
     }
 
     /**
-     * @param Request $request
-     * @param AccessTokenHandler $accessTokenHandler
-     * @return JsonResponse
      * @throws JWTDecodeFailureException
      * @throws NonUniqueResultException
      */
@@ -236,7 +233,7 @@ class UserController extends AbstractController
         try {
             $user = $accessTokenHandler->getUserBadgeFrom($request);
         } catch (BadCredentialsException $e) {
-            return new JsonResponse(["message" => $e], 400);
+            return new JsonResponse(["message" => $e->getMessage()], 400);
         }
 
         $data = json_decode($request->getContent(), true);
@@ -251,13 +248,18 @@ class UserController extends AbstractController
         return new JsonResponse(["message" => "User deleted successfully"]);
     }
 
+
+    /**
+     * @throws JWTDecodeFailureException
+     * @throws NonUniqueResultException
+     */
     #[Route('/changePassword', methods: ['PUT'])]
     public function changePassword(Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
     {
         try {
             $user = $accessTokenHandler->getUserBadgeFrom($request);
         } catch (BadCredentialsException $e) {
-            return new JsonResponse(["message" => $e], 400);
+            return new JsonResponse(["message" => $e->getMessage()], 400);
         }
 
         $data = json_decode($request->getContent(), true);
@@ -270,7 +272,7 @@ class UserController extends AbstractController
 
         $hashedPassword = $this->passwordHashed->hashPassword($user, $newPassword);
         $user->setPassword($hashedPassword);
-        $this->userRepository->save($user, $newPassword);
+        $this->userRepository->save($user);
 
         return new JsonResponse(["message" => "Password changed successfully"]);
     }

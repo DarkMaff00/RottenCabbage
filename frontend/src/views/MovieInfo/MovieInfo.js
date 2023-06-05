@@ -1,31 +1,29 @@
 import React, {useEffect, useRef, useState} from 'react';
+import {useParams, useNavigate} from 'react-router-dom';
+import {useCookies} from 'react-cookie';
+import axios from 'axios';
 import style from './MovieInfo.module.css';
 import Page from '../../components/Page/Page';
-import Button from "../../components/Button/Button";
-import cabbage from "../../images/logo.svg";
-import star from "../../images/star.svg";
-import greyStar from "../../images/greyStar.svg";
-import avatar from "../../images/avatar.png";
-import follow from "../../images/follow.svg";
-import followFilled from "../../images/followFilled.svg";
-import wantSee from "../../images/eye.svg";
-import wantSeeFilled from "../../images/eyeFilled.svg";
-import FormBox from "../../components/FormBox/FormBox";
-import Input from "../../components/Input/Input";
-import Review from "../../components/Review/Review";
-import axios from "axios";
-import {API_BASE_URL} from "../../index";
-import {useNavigate, useParams} from "react-router-dom";
-import {useCookies} from "react-cookie";
-
+import Button from '../../components/Button/Button';
+import cabbage from '../../images/logo.svg';
+import star from '../../images/star.svg';
+import greyStar from '../../images/greyStar.svg';
+import avatar from '../../images/avatar.png';
+import follow from '../../images/follow.svg';
+import followFilled from '../../images/followFilled.svg';
+import wantSee from '../../images/eye.svg';
+import wantSeeFilled from '../../images/eyeFilled.svg';
+import FormBox from '../../components/FormBox/FormBox';
+import Input from '../../components/Input/Input';
+import Review from '../../components/Review/Review';
+import {API_BASE_URL} from '../../index';
 
 function MovieInfo() {
-
     const navigate = useNavigate();
     const descRef = useRef(null);
     const {id} = useParams();
-    const [movieInfo, setMovieInfo] = useState([]);
     const [cookie] = useCookies(['jwt']);
+    const [movieInfo, setMovieInfo] = useState([]);
     const [fav, setFav] = useState(false);
     const [wts, setWts] = useState(false);
     const [logged, setLogged] = useState(false);
@@ -35,31 +33,56 @@ function MovieInfo() {
     const [reviews, setReviews] = useState([]);
 
     const fetchData = async () => {
-        return await axios.get(`${API_BASE_URL}movieInfo/${id}`);
+        const {data} = await axios.get(`${API_BASE_URL}movieInfo/${id}`);
+        return data;
     };
-
 
     const getReviews = async () => {
         const response = await axios.get(`${API_BASE_URL}getReviews/${id}`);
         setReviews(response.data);
     };
 
-
     const checkState = async () => {
-        return await axios.get(`${API_BASE_URL}checkStates/${id}`, {
+        const {data} = await axios.get(`${API_BASE_URL}checkStates/${id}`, {
             headers: {
                 Authorization: `Bearer ${cookie.jwt}`,
-            }
+            },
         });
+        return data;
     };
 
     const addReview = async (e) => {
         e.preventDefault();
 
-        const response = await axios.post(
-            `${API_BASE_URL}addReview/${id}`,
+        try {
+            const response = await axios.post(
+                `${API_BASE_URL}addReview/${id}`,
+                {
+                    desc: descRef.current.value,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${cookie.jwt}`,
+                    },
+                }
+            );
+            setMessage(response.data);
+            getReviews();
+        } catch (error) {
+            setMessage(error.response.data);
+        }
+    };
+
+    const getRating = async () => {
+        const response = await axios.get(`${API_BASE_URL}getRate/${id}`);
+        setMovieRate(response.data);
+    };
+
+    const handleSubmit = async (value) => {
+        await axios.post(
+            `${API_BASE_URL}addFavourite/${id}`,
             {
-                desc: descRef.current.value,
+                isFavourite: value,
             },
             {
                 headers: {
@@ -67,23 +90,6 @@ function MovieInfo() {
                 },
             }
         );
-        setMessage(response.data);
-    };
-
-    const getRating = async () => {
-        const response = await axios.get(`${API_BASE_URL}getRate/${id}`);
-        setMovieRate(response.data);
-    };
-    const handleSubmit = async (value) => {
-        return await axios.post(`${API_BASE_URL}addFavourite/${id}`,
-            {
-                'isFavourite': value,
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${cookie.jwt}`,
-                }
-            });
     };
 
     const addRate = async (value) => {
@@ -92,24 +98,23 @@ function MovieInfo() {
             return;
         }
         setUserRate(value);
-        return await axios.post(`${API_BASE_URL}rateMovie/${id}`,
+        await axios.post(
+            `${API_BASE_URL}rateMovie/${id}`,
             {
-                'rate': value,
+                rate: value,
             },
             {
                 headers: {
                     Authorization: `Bearer ${cookie.jwt}`,
-                }
-            });
+                },
+            }
+        );
     };
-
 
     useEffect(() => {
         if (cookie.jwt) {
             setLogged(true);
-            checkState().then(r => {
-                if (r.status === 200) return r.data;
-            })
+            checkState()
                 .then((data) => {
                     if (data.favourite) {
                         setFav(true);
@@ -121,48 +126,42 @@ function MovieInfo() {
                         setUserRate(data.rate);
                     }
                 })
+                .catch(() => {
+                    navigate('/');
+                });
         }
         getReviews();
-        fetchData().then(r => {
-            if (r.status === 200) return r.data;
-        })
+        fetchData()
             .then((data) => {
                 setMovieInfo(data);
                 setMovieRate(data.rate);
-            }).catch(() => {
-            navigate('/');
-        })
+            })
+            .catch(() => {
+                navigate('/');
+            });
     }, []);
 
     const showTrailer = () => {
-        window.open(movieInfo.trailerKey, "_blank");
+        window.open(movieInfo.trailerKey, '_blank');
     };
 
     const addFavourite = () => {
         if (!logged) {
             navigate('/login');
         } else {
-            handleSubmit(true).then(r => {
-                if (r.status === 200) return r.data;
-            })
-                .then(() => {
-                    setFav(!fav);
-                })
+            setFav(!fav);
+            handleSubmit(true);
         }
-    }
+    };
 
     const addWantToWatch = () => {
         if (!logged) {
             navigate('/login');
         } else {
-            handleSubmit(false).then(r => {
-                if (r.status === 200) return r.data;
-            })
-                .then(() => {
-                    setWts(!wts);
-                })
+            setWts(!wts);
+            handleSubmit(false);
         }
-    }
+    };
 
     const useRenderStars = () => {
         const rating = parseFloat(userRate);
@@ -182,11 +181,9 @@ function MovieInfo() {
 
         const yellowStars = rating;
 
-
         if (rating !== 0) {
             getRating();
         }
-
 
         return (
             <>
@@ -200,7 +197,7 @@ function MovieInfo() {
                         onMouseLeave={handleStarLeave}
                         onClick={() => {
                             addRate(index + 1);
-                            getRating()
+                            getRating();
                         }}
                     />
                 ))}
@@ -214,14 +211,13 @@ function MovieInfo() {
                         onMouseLeave={handleStarLeave}
                         onClick={() => {
                             addRate(index + yellowStars + 1);
-                            getRating()
+                            getRating();
                         }}
                     />
                 ))}
             </>
         );
     };
-
 
     return (
         <Page subpage="movieInfo">
@@ -234,10 +230,10 @@ function MovieInfo() {
                 <div className={style.info}>
                     <div className={style.description}>{movieInfo.desc}</div>
                     <div className={style.data}>
-                        <p>Direction:<p className={style.text}>{movieInfo.director}</p></p>
-                        <p>Genre:<p className={style.text}>{movieInfo.genre}</p></p>
-                        <p>Production:<p className={style.text}>{movieInfo.production}</p></p>
-                        <p>Premier:<p className={style.text}>{movieInfo.release}</p></p>
+                        <p>Direction:<span className={style.text}>{movieInfo.director}</span></p>
+                        <p>Genre:<span className={style.text}>{movieInfo.genre}</span></p>
+                        <p>Production:<span className={style.text}>{movieInfo.production}</span></p>
+                        <p>Premier:<span className={style.text}>{movieInfo.release}</span></p>
                     </div>
                     <div className={style.grades}>
                         <div className={style.pair}>
@@ -288,6 +284,7 @@ function MovieInfo() {
                         context={review.context}
                         likes={review.likes}
                         date={review.date.date.split(' ')[0]}
+                        refresh={getReviews}
                     />
                 ))}
             </FormBox>

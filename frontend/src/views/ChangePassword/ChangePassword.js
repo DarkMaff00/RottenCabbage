@@ -20,6 +20,7 @@ function ChangePassword() {
     const [passwordValid, setPasswordValid] = useState(false);
     const [passwordConfirmationValid, setPasswordConfirmationValid] = useState(false);
 
+    const [showPassword, setShowPassword] = useState(false);
     const [isFormValid, setIsFormValid] = useState(false);
     const [error, setError] = useState('');
     const [cookie] = useCookies(['jwt']);
@@ -29,6 +30,11 @@ function ChangePassword() {
             navigate('/');
         }
     }, [cookie.jwt, navigate]);
+
+
+    const handleShowPassword = () => {
+        setShowPassword(!showPassword);
+    };
 
     const updatePasswordValue = (value) => {
         newPasswordRef.current.value = value;
@@ -51,7 +57,10 @@ function ChangePassword() {
                 }
             );
 
-            navigate('/');
+            setError("Password changed successfully");
+            passwordRef.current.value = "";
+            newPasswordRef.current.value = "";
+            repeatPasswordRef.current.value = "";
         } catch (error) {
             setError(error.response.data.message);
         }
@@ -70,13 +79,13 @@ function ChangePassword() {
                 <h1 className={style.title}>Change Password</h1>
                 <Input
                     title="Current Password"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     required={true}
                     ref={passwordRef}
                 />
                 <Input
                     title="Password"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     required={true}
                     ref={newPasswordRef}
                     correctValue={setPasswordValid}
@@ -84,14 +93,18 @@ function ChangePassword() {
                 />
                 <Input
                     title="Repeat Password"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     required={true}
                     ref={repeatPasswordRef}
                     passwordValue={newPasswordRef}
                     correctValue={setPasswordConfirmationValid}
                 />
+                <div className={style.showPassword}>
+                    <input type="checkbox" id="show" name="showPassword" onChange={handleShowPassword}/>
+                    <label htmlFor="show">Show Password</label>
+                </div>
                 <div className={style.errorText}>{error}</div>
-                <Button title="Change" type="submit" disabled={!isFormValid}/>
+                <Button title="CHANGE" type="submit" disabled={!isFormValid}/>
             </FormBox>
         </Page>
     );

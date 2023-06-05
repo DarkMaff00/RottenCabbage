@@ -1,8 +1,7 @@
 import React from 'react';
-import style from './FormBox.module.css';
+import styles from './FormBox.module.css';
 
-
-const FormBox = (props) => {
+function FormBox(props) {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (typeof props.onSubmit === 'function') {
@@ -11,7 +10,7 @@ const FormBox = (props) => {
     };
 
     return (
-        <form className={style.formBox} style={{width: props.width}} onSubmit={handleSubmit}>
+        <form className={styles.formBox} style={{ width: props.width }} onSubmit={handleSubmit}>
             {props.children}
         </form>
     );

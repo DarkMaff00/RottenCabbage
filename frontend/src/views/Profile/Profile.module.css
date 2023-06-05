@@ -55,8 +55,13 @@
 
 .follow {
     height: 3em;
+    cursor: pointer;
 }
 
-.follow:hover {
-    cursor: pointer;
+.show {
+    visibility: visible;
+}
+
+.hidden {
+    visibility: hidden;
 }

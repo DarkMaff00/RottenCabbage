@@ -44,7 +44,7 @@ class ReviewController extends AbstractController
 
         $existingReview = $this->reviewRepository->findOneBy(['user_name' => $user, 'movie' => $movie]);
         if ($existingReview) {
-            return new JsonResponse("You can add only one review for one movie.");
+            return new JsonResponse("You can add only one review for one movie.", 400);
         }
 
         $review = new Review();
