@@ -18,20 +18,6 @@ function Review(props) {
     const [deleteReview, setDeleteReview] = useState(false);
     const [likes, setLikes] = useState(props.likes);
 
-    const checkLike = async () => {
-        const response = await axios.get(`${API_BASE_URL}checkLike/${props.id}`, {
-            headers: {
-                Authorization: `Bearer ${cookie.jwt}`,
-            }
-        });
-        if (response.data.liked) {
-            setLiked(true);
-        }
-        if (response.data.owner) {
-            setDeleteReview(true);
-        }
-    };
-
     const deleteRev = async () => {
         await axios.delete(`${API_BASE_URL}deleteReview/${props.id}`, {
             headers: {
@@ -41,22 +27,6 @@ function Review(props) {
         props.refresh();
     };
 
-    const checkAccess = async () => {
-        try {
-            await axios.get(
-                `${API_BASE_URL}access`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${cookie.jwt}`,
-                    }
-                }
-            );
-            setDeleteReview(true);
-        } catch (error) {
-            console.log(error);
-        }
-
-    };
 
     const addLike = async () => {
 
@@ -72,11 +42,41 @@ function Review(props) {
     };
 
     useEffect(() => {
+
+        const checkLike = async () => {
+            const response = await axios.get(`${API_BASE_URL}checkLike/${props.id}`, {
+                headers: {
+                    Authorization: `Bearer ${cookie.jwt}`,
+                }
+            });
+            if (response.data.liked) {
+                setLiked(true);
+            }
+            if (response.data.owner) {
+                setDeleteReview(true);
+            }
+        };
+        const checkAccess = async () => {
+            try {
+                await axios.get(
+                    `${API_BASE_URL}access`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${cookie.jwt}`,
+                        }
+                    }
+                );
+                setDeleteReview(true);
+            } catch (error) {
+                console.log(error);
+            }
+
+        };
         if (cookie.jwt) {
             checkAccess();
             checkLike();
         }
-    }, []);
+    }, [cookie.jwt, props.id]);
 
     const like = () => {
         if (!cookie.jwt) {

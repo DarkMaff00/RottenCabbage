@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useParams, useNavigate} from 'react-router-dom';
 import {useCookies} from 'react-cookie';
 import axios from 'axios';
@@ -32,24 +32,13 @@ function MovieInfo() {
     const [message, setMessage] = useState('');
     const [reviews, setReviews] = useState([]);
 
-    const fetchData = async () => {
-        const {data} = await axios.get(`${API_BASE_URL}movieInfo/${id}`);
-        return data;
-    };
 
-    const getReviews = async () => {
+    const getReviews = useCallback(async () => {
         const response = await axios.get(`${API_BASE_URL}getReviews/${id}`);
         setReviews(response.data);
-    };
 
-    const checkState = async () => {
-        const {data} = await axios.get(`${API_BASE_URL}checkStates/${id}`, {
-            headers: {
-                Authorization: `Bearer ${cookie.jwt}`,
-            },
-        });
-        return data;
-    };
+    }, [id]);
+
 
     const addReview = async (e) => {
         e.preventDefault();
@@ -112,6 +101,20 @@ function MovieInfo() {
     };
 
     useEffect(() => {
+        const fetchData = async () => {
+            const {data} = await axios.get(`${API_BASE_URL}movieInfo/${id}`);
+            return data;
+        };
+
+        const checkState = async () => {
+            const {data} = await axios.get(`${API_BASE_URL}checkStates/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${cookie.jwt}`,
+                },
+            });
+            return data;
+        };
+
         if (cookie.jwt) {
             setLogged(true);
             checkState()
@@ -139,7 +142,7 @@ function MovieInfo() {
             .catch(() => {
                 navigate('/');
             });
-    }, []);
+    }, [cookie.jwt, navigate, id, getReviews]);
 
     const showTrailer = () => {
         window.open(movieInfo.trailerKey, '_blank');

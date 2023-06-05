@@ -25,40 +25,39 @@ function Profile() {
     const lgthFav = favourites.length;
     const lgthWts = wts.length;
 
-    const fetchUser = async () => {
-        try {
-            const response = await axios.get(`${API_BASE_URL}user/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${cookie.jwt}`,
-                }
-            });
-            setUser(response.data);
-            setAlreadyFollowed(response.data.follows);
-        } catch (error) {
-            console.log(error);
-            navigate('/');
-        }
-    };
-
-    const fetchSpecials = async () => {
-        try {
-            const response = await axios.get(`${API_BASE_URL}getSpecials/${id}`);
-            setRatings(response.data[0]);
-            setFavourites(response.data[1]);
-            setWts(response.data[2]);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
     useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await axios.get(`${API_BASE_URL}user/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${cookie.jwt}`,
+                    }
+                });
+                setUser(response.data);
+                setAlreadyFollowed(response.data.follows);
+            } catch (error) {
+                console.log(error);
+                navigate('/');
+            }
+        };
+
+        const fetchSpecials = async () => {
+            try {
+                const response = await axios.get(`${API_BASE_URL}getSpecials/${id}`);
+                setRatings(response.data[0]);
+                setFavourites(response.data[1]);
+                setWts(response.data[2]);
+            } catch (error) {
+                console.log(error);
+            }
+        };
         if (!cookie.jwt) {
             navigate('/');
         } else {
             fetchUser();
             fetchSpecials();
         }
-    }, [cookie.jwt, id, navigate]);
+    }, [cookie.jwt, navigate, id]);
 
     useEffect(() => {
         if (user && user.email === jwt_decode(cookie.jwt).username) {

@@ -22,15 +22,15 @@ function Following() {
         return await axios.get(`${API_BASE_URL}users`, {params: {search: value}});
     }
 
-    const fetchFollowing = async () => {
-        return await axios.get(`${API_BASE_URL}following`, {
-            headers: {
-                Authorization: `Bearer ${cookie.jwt}`,
-            }
-        });
-    }
-
     useEffect(() => {
+        const fetchFollowing = async () => {
+            return await axios.get(`${API_BASE_URL}following`, {
+                headers: {
+                    Authorization: `Bearer ${cookie.jwt}`,
+                }
+            });
+        }
+
         fetchFollowing().then(r => {
             if (r.status === 200) return r.data;
         })
@@ -38,7 +38,7 @@ function Following() {
                 setFollowing(data);
                 setDataLoaded(true);
             })
-    }, []);
+    }, [cookie.jwt]);
 
 
     const searchUsers = (value) => {

@@ -16,15 +16,14 @@ function MovieTab(props) {
         }
     };
 
-    const handleTypeChange = () => {
-        if (props.type === "premier") {
-            setIsPremier(true);
-        } else {
-            setIsPremier(false);
-        }
-    };
-
     useEffect(() => {
+        const handleTypeChange = () => {
+            if (props.type === "premier") {
+                setIsPremier(true);
+            } else {
+                setIsPremier(false);
+            }
+        };
         handleTypeChange();
     }, [props.type]);
 

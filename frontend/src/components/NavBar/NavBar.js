@@ -14,9 +14,9 @@ function NavBar() {
     const navigate = useNavigate();
 
     const [isDropdownOpen, setDropdownOpen] = useState(false);
-    const [isMouseOver, setMouseOver] = useState(false);
 
-    const [cookie, setCookie, removeCookie] = useCookies(['jwt']);
+
+    const [cookie, , removeCookie] = useCookies(['jwt']);
     const isRankingPage = location.pathname.endsWith('/ranking');
     const isFollowingPage = location.pathname.endsWith('/following');
     const isPremiersPage = location.pathname.endsWith('/premiers');
@@ -36,12 +36,10 @@ function NavBar() {
     };
 
     const handleMouseEnter = () => {
-        setMouseOver(true);
         setDropdownOpen(true);
     };
 
     const handleMouseLeave = () => {
-        setMouseOver(false);
         setDropdownOpen(false);
     };
 
