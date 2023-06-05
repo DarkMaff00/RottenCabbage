@@ -48,10 +48,10 @@ class ReviewController extends AbstractController
         }
 
         $review = new Review();
-        $review->setUserName($user);
-        $review->setMovie($movie);
-        $review->setDescription($context);
-        $review->setAddDate(new \DateTime());
+        $review->setUserName($user)
+            ->setMovie($movie)
+            ->setDescription($context)
+            ->setAddDate(new \DateTime());
 
         $this->reviewRepository->save($review, true);
 

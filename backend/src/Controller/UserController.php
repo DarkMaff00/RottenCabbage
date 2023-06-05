@@ -29,19 +29,19 @@ class UserController extends AbstractController
 
     private UserRepository $userRepository;
     private MovieRepository $movieRepository;
-
     private RateRepository $rateRepository;
-
     private FavouriteRepository $favouriteRepository;
     private UserPasswordHasherInterface $passwordHashed;
     private ReviewRepository $reviewRepository;
+    private AccessTokenHandler $accessTokenHandler;
 
     public function __construct(UserRepository              $userRepository,
                                 UserPasswordHasherInterface $passwordHashed,
                                 MovieRepository             $movieRepository,
                                 FavouriteRepository         $favouriteRepository,
                                 RateRepository              $rateRepository,
-                                ReviewRepository            $reviewRepository)
+                                ReviewRepository            $reviewRepository,
+                                AccessTokenHandler          $accessTokenHandler)
     {
         $this->userRepository = $userRepository;
         $this->passwordHashed = $passwordHashed;
@@ -49,6 +49,7 @@ class UserController extends AbstractController
         $this->favouriteRepository = $favouriteRepository;
         $this->rateRepository = $rateRepository;
         $this->reviewRepository = $reviewRepository;
+        $this->accessTokenHandler = $accessTokenHandler;
     }
 
     /**
@@ -108,12 +109,12 @@ class UserController extends AbstractController
      * @throws NonUniqueResultException
      */
     #[Route('/following', methods: ['GET'])]
-    public function getFollowingUsers(Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
+    public function getFollowingUsers(Request $request): JsonResponse
     {
         try {
-            $user = $accessTokenHandler->getUserBadgeFrom($request);
+            $user = $this->accessTokenHandler->getUserBadgeFrom($request);
         } catch (BadCredentialsException $e) {
-            return new JsonResponse(["message" => $e], 400);
+            return new JsonResponse(["message" => $e->getMessage()], 400);
         }
 
         $data = [];
@@ -152,13 +153,13 @@ class UserController extends AbstractController
      * @throws NonUniqueResultException|JWTDecodeFailureException
      */
     #[Route('/user/{uuid}', methods: ['GET'])]
-    public function getUserInfo(string $uuid, Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
+    public function getUserInfo(string $uuid, Request $request): JsonResponse
     {
         $follows = false;
         try {
-            $mainUser = $accessTokenHandler->getUserBadgeFrom($request);
+            $mainUser = $this->accessTokenHandler->getUserBadgeFrom($request);
         } catch (BadCredentialsException $e) {
-            return new JsonResponse(["message" => $e], 400);
+            return new JsonResponse(["message" => $e->getMessage()], 400);
         }
 
 
@@ -188,12 +189,12 @@ class UserController extends AbstractController
      * @throws NonUniqueResultException
      */
     #[Route('/follow/{uuid}', methods: ['POST'])]
-    public function followUser(string $uuid, Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
+    public function followUser(string $uuid, Request $request): JsonResponse
     {
         try {
-            $user = $accessTokenHandler->getUserBadgeFrom($request);
+            $user = $this->accessTokenHandler->getUserBadgeFrom($request);
         } catch (BadCredentialsException $e) {
-            return new JsonResponse(["message" => $e], 400);
+            return new JsonResponse(["message" => $e->getMessage()], 400);
         }
 
         $following = $this->userRepository->findOneById($uuid);
@@ -228,10 +229,10 @@ class UserController extends AbstractController
      * @throws NonUniqueResultException
      */
     #[Route('/deleteAccount', methods: ['DELETE'])]
-    public function deleteUser(Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
+    public function deleteUser(Request $request): JsonResponse
     {
         try {
-            $user = $accessTokenHandler->getUserBadgeFrom($request);
+            $user = $this->accessTokenHandler->getUserBadgeFrom($request);
         } catch (BadCredentialsException $e) {
             return new JsonResponse(["message" => $e->getMessage()], 400);
         }
@@ -254,10 +255,10 @@ class UserController extends AbstractController
      * @throws NonUniqueResultException
      */
     #[Route('/changePassword', methods: ['PUT'])]
-    public function changePassword(Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
+    public function changePassword(Request $request): JsonResponse
     {
         try {
-            $user = $accessTokenHandler->getUserBadgeFrom($request);
+            $user = $this->accessTokenHandler->getUserBadgeFrom($request);
         } catch (BadCredentialsException $e) {
             return new JsonResponse(["message" => $e->getMessage()], 400);
         }
@@ -282,12 +283,12 @@ class UserController extends AbstractController
      * @throws NonUniqueResultException
      */
     #[Route('/addFavourite/{movieId}', methods: ['POST'])]
-    public function favouriteMovie(string $movieId, Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
+    public function favouriteMovie(string $movieId, Request $request): JsonResponse
     {
         try {
-            $user = $accessTokenHandler->getUserBadgeFrom($request);
+            $user = $this->accessTokenHandler->getUserBadgeFrom($request);
         } catch (BadCredentialsException $e) {
-            return new JsonResponse(["message" => $e], 400);
+            return new JsonResponse(["message" => $e->getMessage()], 400);
         }
 
         $data = json_decode($request->getContent(), true);
@@ -296,9 +297,9 @@ class UserController extends AbstractController
         $movie = $this->movieRepository->findOneById($movieId);
 
         $favourite = new Favourite();
-        $favourite->setIsFavourite($isFavourite);
-        $favourite->setUserName($user);
-        $favourite->setMovie($movie);
+        $favourite->setIsFavourite($isFavourite)
+            ->setUserName($user)
+            ->setMovie($movie);
 
         foreach ($user->getSpecials()->getValues() as $fav) {
             if ($favourite->equals($fav)) {
@@ -313,46 +314,27 @@ class UserController extends AbstractController
         return new JsonResponse(["message" => "Added to favourite"]);
     }
 
+    /**
+     * @throws JWTDecodeFailureException
+     * @throws NonUniqueResultException
+     */
     #[Route('/checkStates/{movieId}', methods: ['GET'])]
-    public function checkMovieStates(string $movieId, Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
+    public function checkMovieStates(string $movieId, Request $request): JsonResponse
     {
         try {
-            $user = $accessTokenHandler->getUserBadgeFrom($request);
+            $user = $this->accessTokenHandler->getUserBadgeFrom($request);
         } catch (BadCredentialsException $e) {
             return new JsonResponse(["message" => $e], 400);
         }
 
         $movie = $this->movieRepository->findOneById($movieId);
 
-        $favourite = new Favourite();
-        $favourite->setIsFavourite(true);
-        $favourite->setUserName($user);
-        $favourite->setMovie($movie);
+        $isFavourite = $this->favouriteRepository->findOneBy(['user_name' => $user, 'movie' => $movie, 'is_favourite' => true]);
 
-        $isFavourite = false;
-        $wantToSee = false;
+        $wantToSee = $this->favouriteRepository->findOneBy(['user_name' => $user, 'movie' => $movie, 'is_favourite' => false]);
 
-        foreach ($user->getSpecials()->getValues() as $fav) {
-            if ($favourite->equals($fav)) {
-                $isFavourite = true;
-                break;
-            }
-        }
-
-        $favourite->setIsFavourite(false);
-
-        foreach ($user->getSpecials()->getValues() as $fav) {
-            if ($favourite->equals($fav)) {
-                $wantToSee = true;
-                break;
-            }
-        }
-
-        $rating = 0;
         $existingRate = $this->rateRepository->findOneBy(['user_name' => $user, 'movie' => $movie]);
-        if ($existingRate) {
-            $rating = $existingRate->getRate();
-        }
+        $rating = $existingRate ? $existingRate->getRate() : 0;
 
         $data = [
             'favourite' => $isFavourite,
@@ -368,12 +350,12 @@ class UserController extends AbstractController
      * @throws NonUniqueResultException
      */
     #[Route('/rateMovie/{movieId}', methods: ['POST'])]
-    public function rateMovie(Request $request, string $movieId, AccessTokenHandler $accessTokenHandler): JsonResponse
+    public function rateMovie(Request $request, string $movieId): JsonResponse
     {
         try {
-            $user = $accessTokenHandler->getUserBadgeFrom($request);
+            $user = $this->accessTokenHandler->getUserBadgeFrom($request);
         } catch (BadCredentialsException $e) {
-            return new JsonResponse(["message" => $e], 400);
+            return new JsonResponse(["message" => $e->getMessage()], 400);
         }
 
         $data = json_decode($request->getContent(), true);
@@ -393,9 +375,9 @@ class UserController extends AbstractController
         }
 
         $rate = new Rate();
-        $rate->setMovie($movie);
-        $rate->setUserName($user);
-        $rate->setRate($rating);
+        $rate->setMovie($movie)
+            ->setUserName($user)
+            ->setRate($rating);
 
         $user->addRate($rate);
         $this->rateRepository->save($rate, true);
@@ -409,12 +391,12 @@ class UserController extends AbstractController
      * @throws NonUniqueResultException
      */
     #[Route('/checkLike/{id}', methods: ['GET'])]
-    public function checkLikes(string $id, AccessTokenHandler $accessTokenHandler, Request $request): JsonResponse
+    public function checkLikes(string $id, Request $request): JsonResponse
     {
         try {
-            $user = $accessTokenHandler->getUserBadgeFrom($request);
+            $user = $this->accessTokenHandler->getUserBadgeFrom($request);
         } catch (BadCredentialsException $e) {
-            return new JsonResponse(["message" => $e], 400);
+            return new JsonResponse(["message" => $e->getMessage()], 400);
         }
 
         $review = $this->reviewRepository->findOneById($id);
@@ -448,12 +430,12 @@ class UserController extends AbstractController
      * @throws NonUniqueResultException
      */
     #[Route('/likeReview/{id}', methods: ['POST'])]
-    public function likeReview(string $id, AccessTokenHandler $accessTokenHandler, Request $request): JsonResponse
+    public function likeReview(string $id, Request $request): JsonResponse
     {
         try {
-            $user = $accessTokenHandler->getUserBadgeFrom($request);
+            $user = $this->accessTokenHandler->getUserBadgeFrom($request);
         } catch (BadCredentialsException $e) {
-            return new JsonResponse(["message" => $e], 400);
+            return new JsonResponse(["message" => $e->getMessage()], 400);
         }
 
         $review = $this->reviewRepository->findOneById($id);

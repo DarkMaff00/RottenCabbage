@@ -19,10 +19,12 @@ class MovieController extends AbstractController
 {
 
     private MovieRepository $movieRepository;
+    private Client $client;
 
     public function __construct(MovieRepository $movieRepository)
     {
         $this->movieRepository = $movieRepository;
+        $this->client = new Client(['verify' => false]);
     }
 
     /**
@@ -31,9 +33,7 @@ class MovieController extends AbstractController
     #[Route('/ranking', methods: ['GET'])]
     public function getMovies(): JsonResponse
     {
-        $client = new Client([
-            'verify' => false
-        ]);
+        $client = $this->client;
         $token = $_ENV['API_TOKEN'];
         $movies = $this->movieRepository->findAll();
         foreach ($movies as $movie) {
@@ -73,9 +73,7 @@ class MovieController extends AbstractController
     public function getPremiers(): JsonResponse
     {
         $premiers = [];
-        $client = new Client([
-            'verify' => false
-        ]);
+        $client = $this->client;
         $token = $_ENV['API_TOKEN'];
         $response = $client->request('GET', 'https://api.themoviedb.org/3/movie/upcoming', [
             'headers' => [
@@ -130,9 +128,7 @@ class MovieController extends AbstractController
     public function addMovie(Request $request): JsonResponse
     {
         $requestData = json_decode($request->getContent(), true);
-        $client = new Client([
-            'verify' => false
-        ]);
+        $client = $this->client;
 
         $title = $requestData['title'];
 
@@ -151,22 +147,21 @@ class MovieController extends AbstractController
         $body = $response->getBody()->getContents();
         try {
             $data = json_decode($body, true)["results"][0];
-        } catch (ErrorException $e) {
+        } catch (ErrorException) {
             return new JsonResponse(['message' => "No movie in database"]);
         }
 
         $id = $data["id"];
 
         $movie = new Movie();
-
-        $movie->setId($id);
-        $movie->setIsMovie(true);
-        $movie->setRate(0);
-        $movie->setNumOfRatings(0);
+        $movie->setId($id)
+            ->setIsMovie(true)
+            ->setRate(0)
+            ->setNumOfRatings(0);
 
         try {
             $this->movieRepository->save($movie, true);
-        } catch (UniqueConstraintViolationException $e) {
+        } catch (UniqueConstraintViolationException) {
             return new JsonResponse(['message' => "Movie already in database"]);
         }
 
@@ -182,9 +177,7 @@ class MovieController extends AbstractController
     #[Route('/movieInfo/{uuid}', methods: ['GET'])]
     public function movieInfo(string $uuid): JsonResponse
     {
-        $client = new Client([
-            'verify' => false
-        ]);
+        $client = $this->client;
         $token = $_ENV['API_TOKEN'];
         $movie = $this->movieRepository->findOneById($uuid);
         if (!$movie) {

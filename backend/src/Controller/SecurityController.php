@@ -4,7 +4,9 @@ namespace App\Controller;
 
 use App\Repository\UserRepository;
 use App\Security\AccessTokenHandler;
+use Doctrine\ORM\NonUniqueResultException;
 use Exception;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -42,25 +44,26 @@ class SecurityController extends AbstractController
 
         $user = $this->userRepository->findOneByEmail($email);
 
-        if (!$user) {
-            return new JsonResponse(['message' => 'No such user exists.'], 401);
-        } else if (!$this->passwordHashed->isPasswordValid($user, $password)) {
+        if (!$this->passwordHashed->isPasswordValid($user, $password)) {
             return new JsonResponse(['message' => 'Wrong password.'], 401);
         }
-
 
         $token = $this->jwtManager->create($user);
 
         return new JsonResponse(['token' => $token]);
     }
 
+    /**
+     * @throws JWTDecodeFailureException
+     * @throws NonUniqueResultException
+     */
     #[Route('access', methods: ['GET'])]
     public function accessControl(Request $request, AccessTokenHandler $accessTokenHandler): JsonResponse
     {
         try {
             $user = $accessTokenHandler->getUserBadgeFrom($request);
         } catch (BadCredentialsException $e) {
-            return new JsonResponse(["message" => $e], 400);
+            return new JsonResponse(["message" => $e->getMessage()], 400);
         }
 
         if (!$user->isIsAdmin()) {
