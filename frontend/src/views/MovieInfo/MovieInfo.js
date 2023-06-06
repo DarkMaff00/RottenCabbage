@@ -283,6 +283,7 @@ function MovieInfo() {
                     <Review
                         key={review.id}
                         id={review.id}
+                        user={review.user}
                         email={review.email}
                         context={review.context}
                         likes={review.likes}

@@ -11,7 +11,7 @@ import jwt_decode from 'jwt-decode';
 function Settings() {
 
     const navigate = useNavigate();
-    const [cookie, setCookie, removeCookie] = useCookies(['jwt']);
+    const [cookie, , removeCookie] = useCookies(['jwt']);
     const [email, setEmail] = useState('');
 
     useEffect(() => {

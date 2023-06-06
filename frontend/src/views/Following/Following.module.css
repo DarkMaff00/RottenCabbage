@@ -13,9 +13,32 @@
 .searchUser {
     width: 20%;
     margin-top: 2em;
+    margin-right: 2em;
 }
 
 .title {
     margin: 0;
     color: #8AA3E3;
+}
+
+@media (max-width: 1000px) {
+    .followingInfo {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 500px) {
+    .followingDiv {
+        flex-direction: column-reverse;
+        align-items: center;
+        gap: 0;
+    }
+    .followingInfo {
+        grid-template-columns: 1fr;
+    }
+
+    .searchUser {
+        width: 80%;
+        margin-right: 0;
+    }
 }

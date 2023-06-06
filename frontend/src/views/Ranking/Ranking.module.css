@@ -49,3 +49,16 @@
 .active {
     color: white;
 }
+
+@media (max-width: 500px) {
+    .headerMain {
+        width: 50%;
+    }
+
+    .movies {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}

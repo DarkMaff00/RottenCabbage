@@ -7,3 +7,9 @@
     padding: 2em;
     margin-bottom: 2em;
 }
+
+@media (max-width: 500px) {
+    .formBox {
+        width: 60%;
+    }
+}

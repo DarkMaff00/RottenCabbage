@@ -8,7 +8,8 @@
     cursor: pointer;
 }
 
-.number, .mark {
+.number,
+.mark {
     font-size: 2em;
     font-weight: bold;
     color: white;
@@ -49,7 +50,7 @@
     display: flex;
     align-items: center;
     gap: 1em;
-    margin-left: 4em;
+    margin-left: 4rem;
     color: #7C7F9D;
 }
 
@@ -68,4 +69,35 @@
     font-size: 0.8em;
     align-self: center;
     width: 50%;
+    max-height: 9em;
+    overflow: auto;
+}
+
+@media (max-width: 500px) {
+    .movieTab.mobile {
+        flex-direction: column;
+        align-items: center;
+        margin-top: 1em;
+        padding-right: 0;
+    }
+
+    .movieInfo {
+        width: 100%;
+        margin: 1em 0;
+        align-items: center;
+    }
+
+    .desc {
+        align-self: unset;
+        width: 80%;
+        margin-top: 1em;
+        max-height: unset;
+        overflow: unset;
+        margin-bottom: 1em;
+    }
+
+    .grade {
+        transform: scale(0.8);
+        margin-left: 0;
+    }
 }

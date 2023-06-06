@@ -28,7 +28,7 @@ function MovieTab(props) {
     }, [props.type]);
 
     return (
-        <div className={style.movieTab} onClick={viewMovie}>
+        <div className={`${style.movieTab} ${style.mobile}`} onClick={viewMovie}>
             <p className={style.number}>{props.number}</p>
             <img className={style.poster} src={props.poster} alt="poster"/>
             <div className={style.movieInfo}>

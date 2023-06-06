@@ -101,9 +101,9 @@ function Profile() {
                     </div>
                 )}
                 <div className={style.counted}>
-                    Rated: <div className={style.number}>{lgthRates}</div>
-                    Want to See: <div className={style.number}>{lgthWts}</div>
-                    Favourite: <div className={style.number}>{lgthFav}</div>
+                    <div className={style.number}>Rated: {lgthRates}</div>
+                    <div className={style.number}>Want to See: {lgthWts}</div>
+                    <div className={style.number}>Favourite: {lgthFav}</div>
                 </div>
                 <MovieList title="Your Best Rated Movies" data={ratings}/>
                 <MovieList title="Movies You Want to See" data={wts}/>

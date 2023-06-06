@@ -41,3 +41,32 @@
 .picture {
     height: 20em;
 }
+
+@media (max-width: 500px) {
+    .home {
+        flex-direction: column-reverse;
+        align-items: center;
+        width: 100%;
+        margin-top: 0;
+    }
+
+    .picture {
+        height: 10em;
+        margin: 0;
+    }
+
+    .homeText {
+        flex-direction: column;
+        width: 80%;
+        margin: 0;
+    }
+
+    .homeTitle {
+        font-size: 2em;
+        line-height: 1em;
+    }
+
+    .homeDescription {
+        font-size: 0.8em;
+    }
+}

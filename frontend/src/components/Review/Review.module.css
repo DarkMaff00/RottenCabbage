@@ -6,12 +6,13 @@
     padding: 0.5em;
     align-items: center;
     margin-top: 1em;
+    gap: 0.8em;
 }
 
 .user {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     width: 12%;
 }
 
@@ -22,6 +23,7 @@
 
 .icon {
     height: 2.5em;
+    cursor: pointer;
 }
 
 .context {
@@ -48,7 +50,6 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-left: 2em;
 }
 
 .like > p {
@@ -57,12 +58,5 @@
 
 .like > img, .bin {
     height: 1.2em;
-}
-
-.like > img:hover, .bin:hover {
     cursor: pointer;
-}
-
-.bin {
-    margin-left: 1em;
 }

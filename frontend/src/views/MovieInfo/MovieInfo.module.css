@@ -37,6 +37,8 @@
 .description {
     color: white;
     font-size: 1em;
+    max-height: 10em;
+    overflow: auto;
 }
 
 .data > p {
@@ -82,8 +84,42 @@
 
 .smallIcon {
     height: 1.5em;
+    cursor: pointer;
 }
 
-.smallIcon:hover {
-    cursor: pointer;
+@media (max-width: 1300px) {
+    .extras {
+        margin-top: 0;
+        flex-direction: column-reverse;
+        gap: 0.5em;
+    }
+
+    .grades {
+        transform: scale(0.8);
+    }
+}
+
+@media (max-width: 1000px) {
+    .section {
+        transform: scale(0.8);
+    }
+
+    .smallIcon {
+        height: 1em;
+    }
+}
+
+@media (max-width: 500px) {
+    .section {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .poster {
+        height: 18em;
+    }
+
+    .smallIcon {
+        height: 1.5em;
+    }
 }

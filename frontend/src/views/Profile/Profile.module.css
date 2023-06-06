@@ -42,7 +42,8 @@
     margin-top: 2em;
     width: 30%;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 1em;
     color: #7C7F9D;
     align-items: flex-end;
 }
@@ -64,4 +65,16 @@
 
 .hidden {
     visibility: hidden;
+}
+
+@media (max-width: 500px) {
+    .counted {
+        flex-direction: column;
+        width: 50%;
+        align-items: flex-start;
+    }
+
+    .number {
+        font-size: 1em;
+    }
 }

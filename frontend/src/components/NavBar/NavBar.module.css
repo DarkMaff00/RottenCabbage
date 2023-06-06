@@ -19,13 +19,16 @@
     height: 1.4em;
 }
 
-.exitButton, .logoDiv {
+.exitButton,
+.logoDiv {
     display: flex;
     align-items: center;
     gap: 1em;
 }
 
-.exitButton, .dropdownContainer, .dropdown {
+.exitButton,
+.dropdownContainer,
+.dropdown {
     font-size: 1em;
     display: inline-block;
     outline: 0;
@@ -47,7 +50,8 @@
     margin: 0 1.5em 0 0;
 }
 
-a, p {
+a,
+p {
     text-decoration: none;
     color: #7C7F9D;
 }
@@ -115,4 +119,28 @@ a, p {
 
 .dropdownOption:hover {
     text-decoration: underline;
+}
+
+@media (max-width: 500px) {
+    .navBar {
+        margin-top: 0;
+        gap: 1em;
+        width: 90%;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10em;
+    }
+
+    .tabs {
+        flex-direction: column;
+        gap: 0.5em;
+    }
+
+    .menuTabs {
+        gap: 1em;
+    }
+
+    .logoDiv {
+        transform: scale(0.7);
+    }
 }

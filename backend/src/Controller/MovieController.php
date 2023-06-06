@@ -269,6 +269,7 @@ class MovieController extends AbstractController
         $reviews = [];
         foreach ($data as $rev) {
             $reviews[] = [
+                'user' => $rev->getUserName()->getId(),
                 'email' => $rev->getUserName()->getEmail(),
                 'id' => $rev->getId(),
                 'date' => $rev->getAddDate(),

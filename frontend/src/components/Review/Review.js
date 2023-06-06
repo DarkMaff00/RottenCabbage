@@ -27,6 +27,10 @@ function Review(props) {
         props.refresh();
     };
 
+    const move = () => {
+      navigate(`/profile/${props.user}`);
+    };
+
 
     const addLike = async () => {
 
@@ -91,7 +95,7 @@ function Review(props) {
     return (
         <div className={style.reviewDiv}>
             <div className={style.user}>
-                <img className={style.icon} src={avatar} alt="avatar"/>
+                <img className={style.icon} src={avatar} alt="avatar" onClick={move}/>
             </div>
             <div className={style.context}>
                 <div className={style.name}>{props.email}<p className={style.date}>{props.date}</p></div>
@@ -99,7 +103,7 @@ function Review(props) {
             </div>
             <div className={style.like}>
                 <img onClick={like} src={liked ? followFilled : follow} alt="heart"/>
-                <p>{likes}</p>
+                <p>{likes > 999 ? Math.floor(likes/1000) + "k" : likes}</p>
             </div>
             {deleteReview && <img className={style.bin} onClick={deleteRev} src={bin} alt="heart"/>}
         </div>

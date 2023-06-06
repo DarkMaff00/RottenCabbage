@@ -2,3 +2,12 @@
     width: 60%;
     margin-bottom: 2em;
 }
+
+@media (max-width: 500px) {
+    .premiersDiv {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}
