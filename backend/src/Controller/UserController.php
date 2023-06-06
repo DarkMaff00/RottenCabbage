@@ -273,7 +273,7 @@ class UserController extends AbstractController
 
         $hashedPassword = $this->passwordHashed->hashPassword($user, $newPassword);
         $user->setPassword($hashedPassword);
-        $this->userRepository->save($user);
+        $this->userRepository->save($user, $hashedPassword);
 
         return new JsonResponse(["message" => "Password changed successfully"]);
     }
